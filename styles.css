@@ -1,0 +1,107 @@
+@font-face {
+    font-family: "AlbertTextBold";
+    src: url("fonts/AlbertTextBold.otf");
+}
+
+body {
+    font-size: 1.2rem;
+    font-family: "AlbertTextBold", "Garamond", "Georgia", serif;
+    margin: 0px;
+    background: rgb(200, 230, 200);
+}
+
+header {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0,100,0,0.25);
+    margin: 0px;
+    padding: 10px;
+}
+
+#icon {
+    margin-right: 30px;
+    width: 80px;
+    top: 15px;
+    left: 20%;
+}
+
+h1 {
+    display: inline-block;
+    margin: 0px;
+    font-size: 5rem;
+    text-align: center;
+}
+
+h1 a {
+    color: rgba(0,100,0,0.75);
+    text-decoration: none;
+}
+
+h1 a:hover {
+    color: rgba(0,100,0,0.75);
+}
+
+#canvas-container {
+    margin: 10px 0;
+    max-height: 600px;
+    text-align: center;
+}
+
+#canvas {
+    width: 800px;
+    height: 600px;
+    border: 2px double rgba(0,100,0,0.75);
+    background-image: url("images/forest-bg.jpg");
+}
+
+#buttons-container {
+    text-align: center;
+    margin: 10px auto;
+    display: flex;
+}
+
+#buttons-box {
+    max-width: 800px;
+    margin: auto;
+}
+
+.btn {
+    font-size: 1.2rem;
+    color: black;
+    border-color: rgba(0,100,0,0.75);
+    background-color: rgba(0,100,0,0.75);
+    padding: 0 30px;
+    margin: 0 20px;
+}
+
+#donate-toast {
+    font-size: 1.1rem;
+    position: fixed;
+    right: 50px;
+    bottom: 50%;
+    color: red;
+    width: 240px;
+    border-radius: 0.5rem;
+    -webkit-box-shadow: 0px 0px 50px 20px rgba(0,100,0,0.75);
+    -moz-box-shadow: 0px 0px 50px 20px rgba(0,100,0,0.75);
+    box-shadow: 0px 0px 50px 20px rgba(0,100,0,0.75);
+}
+
+#copyright {
+    color: rgb(90, 90, 90);
+    position: fixed;
+    left: 50px;
+    bottom: 50px;
+    line-height: 0;
+    text-decoration: none;
+}
+
+#coffee-counter {
+    color: brown;
+    position: fixed;
+    right: 50px;
+    bottom: 20px;
+    text-align: center;
+}
