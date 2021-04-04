@@ -22,7 +22,7 @@ sounds.cracklingSound.loop = true
 const images = {
     bgImg: new Image(),
     fgImg: new Image(),
-    woodenSign: new Image(),
+    woodenSignImg: new Image(),
     inventoryImg: new Image(),
     barBgImg: new Image(),
     barBlueImg: new Image(),
@@ -51,7 +51,7 @@ const images = {
 }
 images.bgImg.src = 'images/forest-bg.jpg'
 images.fgImg.src = 'images/forest-fg.png'
-images.woodenSign.src = 'images/wooden-sign.png'
+images.woodenSignImg.src = 'images/wooden-sign.png'
 images.inventoryImg.src = 'images/bag.png'
 images.barBgImg.src = 'images/bar-bg.png'
 images.barBlueImg.src = 'images/bar-blue.png'
@@ -211,6 +211,7 @@ class Survivor {
 class Game {
     constructor(){
         this.gameTime = 0
+        this.daysCount = 0
         this.opacityInCounter = 0
         this.opacityOutCounter = 0
         this.gameOn = false
@@ -289,10 +290,11 @@ class Game {
             this.displayInventory()
             this.displayBars()
             survivor.survivorLoad()
+            this.checkDays()
         }
         window.requestAnimationFrame(()=>this.update())
     }
-    
+
     displayBg = ()=>{
         ctx.drawImage(images.bgImg, 0, 0, images.bgImg.width, images.bgImg.height)
     }
@@ -345,6 +347,14 @@ class Game {
         checkHoverPos(hydratationBar) ? hydratationBar.hovering = true : hydratationBar.hovering = false
         checkHoverPos(saturationBar) ? saturationBar.hovering = true : saturationBar.hovering = false
     }
+        
+    checkDays = ()=>{
+        if (Math.floor(this.gameTime%120) === 0){
+            this.daysCount = Math.floor(this.gameTime/10)
+            woodenSign.showNewDay = true
+        }
+        woodenSign.displayDays(this.daysCount)
+    }
 
     openCloseInventory = ()=>{
         this.showInventory = !this.showInventory
@@ -380,6 +390,7 @@ const itemsInvGrid = [
 survivor = new Survivor()
 game = new Game()
 
+woodenSign = new WoodenSign(images.woodenSignImg)
 hydratationBar = new Bar('Hydratation', images.barBlueImg, images.barBgImg, [20, 15], survivor.hydratation, survivor.maxHydratation, 'rgb(0, 0, 0, 1)')
 saturationBar = new Bar('Saturation', images.barWhiteImg, images.barBgImg, [20, 50], survivor.saturation, survivor.maxSaturation, 'rgb(0, 0, 0, 1)')
 

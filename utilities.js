@@ -1,4 +1,4 @@
-// General use utility classes
+// General use utility classes & objects
 
 class SpriteSheet{
     constructor(img, dimensions){
@@ -51,20 +51,60 @@ class Bar{
         this.typeTextWidth = ctx.measureText(this.type).width
     }
 
-    displayBar = (value)=>{
+    displayBar = (value, avoidBugNewDay)=>{
         this.value = value
         ctx.drawImage(this.imgBg, this.pos[0], this.pos[1], this.w, this.h)
         ctx.drawImage(this.img, 0, 0, this.w*value/this.maxValue, this.h, 
             this.pos[0], this.pos[1], this.w*value/this.maxValue, this.h)
         
-        let percentage = `${Math.floor(value/this.maxValue*100*10)/10}%`
-        let percentageTextWidth = ctx.measureText(percentage).width
+        const percentage = `${Math.floor(value/this.maxValue*100*10)/10}%`
+        // const percentageTextWidth = ctx.measureText(percentage).width
         ctx.font = '15px AlbertTextBold'
         ctx.fillStyle = this.textColor
         if (this.hovering){
             ctx.fillText(this.type, this.pos[0]+this.img.width*0.5-this.typeTextWidth*0.5, this.pos[1]+20)
         } else {
-            ctx.fillText(percentage, this.pos[0]+this.img.width*0.5-percentageTextWidth*0.5, this.pos[1]+20)
+            ctx.fillText(percentage, this.pos[0]+this.img.width*0.5-35*0.5, this.pos[1]+20)
         }
+    }
+}
+
+class WoodenSign{
+    constructor(img){
+        this.img = img
+        this.pos = [canvas.width*0.5-this.img.naturalWidth*0.5, -this.img.naturalHeight-155]
+        this.animationDirection = 'down'
+        this.showNewDay = false
+        this.daysCount = 0
+    }
+
+    displayDays = (daysCount)=>{
+        if (this.showNewDay){
+            this.daysCount = daysCount
+            this.animateSign(this.animationDirection)
+        }
+    }
+
+    animateSign = (direction)=>{
+        ctx.drawImage(this.img, this.pos[0], this.pos[1], 
+            this.img.naturalWidth, this.img.naturalHeight)
+        ctx.font = '40px AlbertTextBold'
+        const dayText = `Day ${this.daysCount}`
+        const dayTextWidth = ctx.measureText(dayText).width
+        ctx.fillText(dayText, this.pos[0]+this.img.width*0.5-dayTextWidth*0.5, this.pos[1]+120)
+        if (direction === 'down'){
+            this.pos[1] += 3
+            if (this.pos[1] >= -70){
+                this.pos[1] = -70
+                setTimeout(()=>{
+                    this.animationDirection = 'up'
+                }, 3000)
+            }
+        } else if (direction === 'up')
+            this.pos[1] -= 3
+            if (this.pos[1] <= -this.img.naturalHeight){
+                this.animationDirection = 'down'
+                this.showNewDay = false
+            }
     }
 }
