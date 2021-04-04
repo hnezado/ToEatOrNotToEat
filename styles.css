@@ -8,6 +8,7 @@ body {
     font-family: "AlbertTextBold", "Garamond", "Georgia", serif;
     margin: 0px;
     background: rgb(200, 230, 200);
+    background-image: url('images/clouds.png');
 }
 
 header {
@@ -50,10 +51,9 @@ h1 a:hover {
 }
 
 #canvas {
-    width: 800px;
-    height: 600px;
     border: 2px double rgba(0,100,0,0.75);
-    background-image: url("images/forest-bg.jpg");
+    /* background-image: url("images/forest-bg.jpg"); */
+    background-color:rgb(255, 255, 255, .2)
 }
 
 #buttons-container {
@@ -73,14 +73,19 @@ h1 a:hover {
     border-color: rgba(0,100,0,0.75);
     background-color: rgba(0,100,0,0.75);
     padding: 0 30px;
-    margin: 0 20px;
+    margin: 0 10px;
+}
+
+#sound {
+    padding: 0px;
+    width: 50px;
 }
 
 #donate-toast {
     font-size: 1.1rem;
     position: fixed;
     right: 50px;
-    bottom: 50%;
+    bottom: 150px;
     color: red;
     width: 240px;
     border-radius: 0.5rem;
