@@ -33,18 +33,36 @@ class SpriteSheet{
         return bufferCollection
     }
 }
-	// """Creates a list of cropped images (x, y, width, height) of the given sheet"""
 
-	// def __init__(self, sheet, dimensions, transparency=True):
-	// 	self.sheet = pg.image.load(sheet).convert_alpha() if transparency else pg.image.load(sheet).convert()
+class Bar{
+    constructor(type, img, imgBg, pos, initialValue, maxValue, textColor){
+        this.type = type
+        this.img = img
+        this.imgBg = imgBg
+        this.pos = pos
+        this.w = img.naturalWidth
+        this.h = img.naturalHeight
+        this.value = initialValue
+        this.maxValue = maxValue
+        this.hovering = false
+        textColor ? this.textColor = textColor : this.textColor = 'rgb(255, 255, 255, 1)'
+        this.typeTextWidth = ctx.measureText(this.type).width
+    }
 
-	// 	self.rows, self.columns = dimensions[0], dimensions[1]
-	// 	self.total_crops = self.rows*self.columns
-
-	// 	self.rect = self.sheet.get_rect()
-	// 	self.crop_w = self.rect.width/self.columns
-	// 	self.crop_h = self.rect.height/self.rows
-
-	// 	// # List with the positions and sizes (surface objects) of all the cells of the sprite #
-	// 	self.crops = list([(int(cell % self.columns)*self.crop_w, int(cell/self.columns)*self.crop_h,
-	// 	                    self.crop_w, self.crop_h) for cell in range(self.total_crops)])
+    displayBar = (value)=>{
+        this.value = value
+        ctx.drawImage(this.imgBg, this.pos[0], this.pos[1], this.w, this.h)
+        ctx.drawImage(this.img, 0, 0, this.w*value/this.maxValue, this.h, 
+            this.pos[0], this.pos[1], this.w*value/this.maxValue, this.h)
+        
+        let percentage = `${value/this.maxValue*100}%`
+        let percentageTextWidth = ctx.measureText(percentage).width
+        ctx.font = '15px AlbertTextBold'
+        ctx.fillStyle = this.textColor
+        if (this.hovering){
+            ctx.fillText(this.type, this.pos[0]+this.img.width*0.5-this.typeTextWidth*0.5, this.pos[1]+20)
+        } else {
+            ctx.fillText(percentage, this.pos[0]+this.img.width*0.5-percentageTextWidth*0.5, this.pos[1]+20)
+        }
+    }
+}

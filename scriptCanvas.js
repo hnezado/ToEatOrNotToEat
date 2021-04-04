@@ -23,21 +23,57 @@ const images = {
     bgImg: new Image(),
     fgImg: new Image(),
     inventoryImg: new Image(),
+    barBgImg: new Image(),
+    barBlueImg: new Image(),
+    barWhiteImg: new Image(),
+    barRedImg: new Image(),
     bonfireImg: new SpriteSheet('images/floor-items/bonefire.png', [1, 8]),
     canteenImg: new Image(),
     canteenOpenedImg: new Image(),
     backpackImg: new Image(),
     backpackOpenedImg: new Image(),
-    acornsImg: new Image()
+    acornsImg: new Image(),
+    beehiveImg: new Image(),
+    birdImg: new Image(),
+    chestnutImg: new Image(),
+    cranberriesImg: new Image(),
+    eggImg: new Image(),
+    fishImg: new Image(),
+    flowersImg: new Image(),
+    frogImg: new Image(),
+    meatImg: new Image(),
+    mushroomImg: new Image(),
+    rootsImg: new Image(),
+    snailsImg: new Image(),
+    strawberriesImg: new Image(),
+    wildSpinachImg: new Image(),
 }
 images.bgImg.src = 'images/forest-bg.jpg'
 images.fgImg.src = 'images/forest-fg.png'
 images.inventoryImg.src = 'images/bag.png'
+images.barBgImg.src = 'images/bar-bg.png'
+images.barBlueImg.src = 'images/bar-blue.png'
+images.barWhiteImg.src = 'images/bar-white.png'
+images.barRedImg.src = 'images/bar-red.png'
 images.canteenImg.src = 'images/floor-items/canteen.png'
 images.canteenOpenedImg.src = 'images/floor-items/canteen-opened.png'
 images.backpackImg.src = 'images/floor-items/backpack.png'
 images.backpackOpenedImg.src = 'images/floor-items/backpack-opened.png'
 images.acornsImg.src = 'images/inv-items/acorns.png'
+images.beehiveImg.src = 'images/inv-items/beehive.png'
+images.birdImg.src = 'images/inv-items/bird.png'
+images.chestnutImg.src = 'images/inv-items/chestnut.png'
+images.cranberriesImg.src = 'images/inv-items/cranberries.png'
+images.eggImg.src = 'images/inv-items/egg.png'
+images.fishImg.src = 'images/inv-items/fish.png'
+images.flowersImg.src = 'images/inv-items/flowers.png'
+images.frogImg.src = 'images/inv-items/frog.png'
+images.meatImg.src = 'images/inv-items/meat.png'
+images.mushroomImg.src = 'images/inv-items/mushroom.png'
+images.rootsImg.src = 'images/inv-items/roots.png'
+//images.snailsImg.src = 'images/inv-items/snails.png'
+images.strawberriesImg.src = 'images/inv-items/strawberries.png'
+images.wildSpinachImg.src = 'images/inv-items/wild-spinach.png'
 
 // Classes
 // Floor Item class
@@ -81,12 +117,15 @@ class FloorItem {
 
 //Inventory Item class
 class InventoryItem {
-    constructor(img, cookedImg){
-        this.description = 'A couple of acorns'
+    constructor(img, cookedImg, description){
         this.img = img
-        this.pos
+        this.pos = [0, 0]
         cookedImg ? this.cookedImg = cookedImg : this.cookedImg = null
+
         this.cooked = false
+        this.description = description
+        this.boxSize = [ctx.measureText(this.description).width, 40]
+        this.showBox = false
     }
 
     displayInvItem = ()=>{
@@ -96,18 +135,58 @@ class InventoryItem {
             ctx.drawImage(this.img, this.pos[0], this.pos[1], 29, 29)
         }
     }
+
+    displayInfoBox = ()=>{
+        ctx.fillStyle = 'rgb(0, 0, 0, .7)'
+        ctx.fillRect(mousePos[0]+5, mousePos[1]+5, this.boxSize[0]*2, this.boxSize[1])
+        ctx.font = '20px AlbertTextBold'
+        ctx.fillStyle = 'rgb(255, 255, 255, 1)'
+        ctx.fillText(this.description, mousePos[0]+15, mousePos[1]+32)
+    }
 }
 
 // Survivor class
 class Survivor {
     constructor(){
-        this.hunger = 100
         this.thirst = 100
+        this.maxThist = 100
+        this.thirstLoss = 0.005
+        this.saturation = 100
+        this.maxSaturation = 100
+        this.saturationLoss = 0.001
         this.wet = 0
-        this.heat = 37
-        
+        this.maxWet = 50
+        this.bodyHeat = 37
+
+        this.drinking = false
+        this.openingBag = false
+        this.alreadySet = false
     }
     
+    survivorLoad = ()=>{
+        this.loadDebuffs()
+    }
+
+    loadDebuffs = ()=>{
+        if (!this.alreadySet){
+            this.alreadySet = true
+            setInterval(()=>{
+                this.thirstDebuff(this.thirstLoss)
+                this.saturationDebuff(this.saturationLoss)
+            }, 50)
+        }
+    }
+
+    thirstDebuff = (loss)=>{
+        this.thirst -= loss
+        if (this.thirst < 0) this.thirst = 0
+    }
+
+    saturationDebuff = (loss)=>{
+        this.saturation -= loss
+        if (this.saturation < 0) this.saturation = 0
+    }
+
     drink = ()=>{
         
     }
@@ -132,10 +211,10 @@ class Game {
         this.showInventory = false
         this.invPos = [canvas.width*0.5-images.inventoryImg.width*0.5, canvas.height*0.5-images.inventoryImg.height*0.5]
         this.relativePosGrid = {
-            1: [25, 26], 2: [25+29+11, 26], 3: [25+29*2+18, 26], 4: [25+29*3+27, 26],
-            5: [25, 26+29+11], 6: [25+29+11, 26+29+11], 7: [25+29*2+18, 26+29+11], 8: [25+29*3+27, 26+29+11],
-            9: [25, 26+29*2+18], 10: [25+29+11, 26+29*2+18], 11: [25+29*2+18, 26+29*2+18], 12: [25+29*3+27, 26+29*2+18],
-            13: [25, 26+29*3+27], 14: [25+29+11, 26+29*3+27], 15: [25+29*2+18, 26+29*3+27], 9: [25+29*3+27, 26+29*3+27],
+            1: [25, 26], 2: [65, 26], 3: [106, 26], 4: [146, 26],
+            5: [25, 66], 6: [65, 66], 7: [106, 66], 8: [146, 66],
+            9: [25, 106], 10: [65, 106], 11: [106, 106], 12: [146, 106],
+            13: [25, 146], 14: [65, 146], 15: [106, 146], 9: [146, 146],
         }
     }
 
@@ -192,8 +271,8 @@ class Game {
             this.displayFloorItems()
             this.displayFg()
             this.displayInventory()
-
-            this.displayInfoBoxes()
+            this.displayBars()
+            survivor.survivorLoad()
         }
         window.requestAnimationFrame(()=>this.update())
     }
@@ -219,6 +298,7 @@ class Game {
             ctx.drawImage(images.inventoryImg, this.invPos[0], this.invPos[1], 
                 images.inventoryImg.naturalWidth, images.inventoryImg.naturalHeight)
             this.displayInvItems()
+            this.displayInfoBoxes()
         }
     }
         
@@ -231,15 +311,23 @@ class Game {
             }
         }
     }
-    
+
     displayInfoBoxes = ()=>{
-        console.log('hi')
-        const text = 'A bunch of acorns'
-        ctx.fillStyle = 'rgb(0, 0, 0, .5)'
-        ctx.fillRect(375, 275, 50, 50)
-        ctx.font = '30px AlbertTextBold'
-        ctx.fillStyle = 'rgb(255, 255, 255, 1)'
-        ctx.fillText(text, mousePos[0]+5, mousePos[1]-5)
+        for (let invCell of itemsInvGrid){
+            if (invCell instanceof InventoryItem){
+                if (checkHoverPos(invCell)){
+                    invCell.displayInfoBox()
+                }
+            }
+        }
+    }
+
+    displayBars = ()=>{
+        thirstBar.displayBar(survivor.thirst)
+        saturationBar.displayBar(survivor.saturation)
+        
+        checkHoverPos(thirstBar) ? thirstBar.hovering = true : thirstBar.hovering = false
+        checkHoverPos(saturationBar) ? saturationBar.hovering = true : saturationBar.hovering = false
     }
 
     openCloseInventory = ()=>{
@@ -250,6 +338,8 @@ class Game {
         for (let [index, invCell] of itemsInvGrid.entries()){
             if (!(invCell instanceof InventoryItem)){
                 itemsInvGrid[index] = item
+                itemsInvGrid[index].pos[0] = this.relativePosGrid[index+1][0]
+                itemsInvGrid[index].pos[1] = this.relativePosGrid[index+1][1]
                 break
             }
         }
@@ -273,8 +363,15 @@ const itemsInvGrid = [
 
 survivor = new Survivor()
 game = new Game()
-game.pickItem(new InventoryItem(images.acornsImg))
 
+thirstBar = new Bar('Thirst', images.barBlueImg, images.barBgImg, [20, 20], survivor.thirst, survivor.maxThist, 'rgb(0, 0, 0, 1)')
+saturationBar = new Bar('Saturation', images.barWhiteImg, images.barBgImg, [20, 70], survivor.saturation, survivor.maxSaturation, 'rgb(0, 0, 0, 1)')
+
+game.pickItem(new InventoryItem(images.acornsImg, null, 'Couple of acorns'))
+game.pickItem(new InventoryItem(images.beehiveImg, null, 'Abandoned beehive'))
+game.pickItem(new InventoryItem(images.birdImg, null, 'Plucked bird'))
+game.pickItem(new InventoryItem(images.meatImg, null, 'Piece of meat'))
+game.pickItem(new InventoryItem(images.wildSpinachImg, null, 'Bunch of wild spinach leaves'))
 
 // General functions
 // Update mouse position
@@ -306,8 +403,11 @@ const checkClickPos = (event, object)=>{
     } else {return false}
 }
 
-const checkHoverPos = ()=>{
-    // if (mousePos[0] > )
+const checkHoverPos = (object)=>{
+    if (mousePos[0] > object.pos[0] && mousePos[0] < object.pos[0]+object.img.width &&
+        mousePos[1] > object.pos[1] && mousePos[1] < object.pos[1]+object.img.height){
+            return true
+        } else {return false}
 }
 
 // Event handlers
@@ -343,14 +443,27 @@ const eventHandler = ()=>{
 
                 // Backpack interaction
             } else if (checkClickPos(event, itemsFloorCollection.backpack)){
-                sounds.zipSound.play()
-                itemsFloorCollection.backpack.opened = !itemsFloorCollection.backpack.opened
-                game.openCloseInventory()
-
+                if (!survivor.openingBag){
+                    survivor.openingBag = true
+                    sounds.zipSound.play()
+                    setTimeout(()=>{
+                        itemsFloorCollection.backpack.opened = !itemsFloorCollection.backpack.opened
+                        game.openCloseInventory()
+                        survivor.openingBag = false
+                    }, 1000)
+                }
+    
                 // Canteen interaction
             } else if (checkClickPos(event, itemsFloorCollection.canteen)){
-                sounds.sipSound.play()
-                itemsFloorCollection.canteen.opened = !itemsFloorCollection.canteen.opened
+                if (!survivor.drinking){
+                    survivor.drinking = true
+                    sounds.sipSound.play()
+                    itemsFloorCollection.canteen.opened = true
+                    setTimeout(()=>{
+                        itemsFloorCollection.canteen.opened = false
+                        survivor.drinking = false
+                    }, 3200)
+                }
             }
         }
     }
