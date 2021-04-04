@@ -1,3 +1,5 @@
+// General use utility classes
+
 class SpriteSheet{
     constructor(img, dimensions){
         this.sheet = new Image()
@@ -55,7 +57,7 @@ class Bar{
         ctx.drawImage(this.img, 0, 0, this.w*value/this.maxValue, this.h, 
             this.pos[0], this.pos[1], this.w*value/this.maxValue, this.h)
         
-        let percentage = `${value/this.maxValue*100}%`
+        let percentage = `${Math.floor(value/this.maxValue*100*10)/10}%`
         let percentageTextWidth = ctx.measureText(percentage).width
         ctx.font = '15px AlbertTextBold'
         ctx.fillStyle = this.textColor

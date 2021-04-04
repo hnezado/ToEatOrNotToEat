@@ -22,6 +22,7 @@ sounds.cracklingSound.loop = true
 const images = {
     bgImg: new Image(),
     fgImg: new Image(),
+    woodenSign: new Image(),
     inventoryImg: new Image(),
     barBgImg: new Image(),
     barBlueImg: new Image(),
@@ -50,6 +51,7 @@ const images = {
 }
 images.bgImg.src = 'images/forest-bg.jpg'
 images.fgImg.src = 'images/forest-fg.png'
+images.woodenSign.src = 'images/wooden-sign.png'
 images.inventoryImg.src = 'images/bag.png'
 images.barBgImg.src = 'images/bar-bg.png'
 images.barBlueImg.src = 'images/bar-blue.png'
@@ -148,10 +150,10 @@ class InventoryItem {
 // Survivor class
 class Survivor {
     constructor(){
-        this.thirst = 100
-        this.maxThist = 100
-        this.thirstLoss = 0.005
-        this.saturation = 100
+        this.hydratation = 50
+        this.maxHydratation = 100
+        this.hydratationLoss = 0.005
+        this.saturation = 50
         this.maxSaturation = 100
         this.saturationLoss = 0.001
         this.wet = 0
@@ -161,6 +163,10 @@ class Survivor {
         this.drinking = false
         this.openingBag = false
         this.alreadySet = false
+        this.timeBuffers = {
+            hydratationBuffer: 0,
+            saturationBuffer: 0
+        }
     }
     
     survivorLoad = ()=>{
@@ -171,15 +177,15 @@ class Survivor {
         if (!this.alreadySet){
             this.alreadySet = true
             setInterval(()=>{
-                this.thirstDebuff(this.thirstLoss)
+                this.hydratationDebuff(this.hydratationLoss)
                 this.saturationDebuff(this.saturationLoss)
             }, 50)
         }
     }
 
-    thirstDebuff = (loss)=>{
-        this.thirst -= loss
-        if (this.thirst < 0) this.thirst = 0
+    hydratationDebuff = (loss)=>{
+        this.hydratation -= loss
+        if (this.hydratation < 0) this.hydratation = 0
     }
 
     saturationDebuff = (loss)=>{
@@ -188,7 +194,8 @@ class Survivor {
     }
 
     drink = ()=>{
-        
+        survivor.drinking = true
+        this.hydratation += 10
     }
     
     eat = ()=>{
@@ -203,6 +210,7 @@ class Survivor {
 // Game class
 class Game {
     constructor(){
+        this.gameTime = 0
         this.opacityInCounter = 0
         this.opacityOutCounter = 0
         this.gameOn = false
@@ -260,10 +268,18 @@ class Game {
         if (!this.gameOn){
             this.gameOn = true
             this.fadeOut()
+            this.setGameTime()
             this.update()
         }
     }
     
+    setGameTime = ()=>{
+        // Game Interval Time (updates every tick/50ms) (gameTime units are seconds)
+        setInterval(()=>{
+            this.gameTime += 0.05
+        }, 50)
+    }
+
     update = ()=>{
         updateMousePos()
         if (!this.intro){
@@ -323,10 +339,10 @@ class Game {
     }
 
     displayBars = ()=>{
-        thirstBar.displayBar(survivor.thirst)
+        hydratationBar.displayBar(survivor.hydratation)
         saturationBar.displayBar(survivor.saturation)
         
-        checkHoverPos(thirstBar) ? thirstBar.hovering = true : thirstBar.hovering = false
+        checkHoverPos(hydratationBar) ? hydratationBar.hovering = true : hydratationBar.hovering = false
         checkHoverPos(saturationBar) ? saturationBar.hovering = true : saturationBar.hovering = false
     }
 
@@ -364,8 +380,8 @@ const itemsInvGrid = [
 survivor = new Survivor()
 game = new Game()
 
-thirstBar = new Bar('Thirst', images.barBlueImg, images.barBgImg, [20, 20], survivor.thirst, survivor.maxThist, 'rgb(0, 0, 0, 1)')
-saturationBar = new Bar('Saturation', images.barWhiteImg, images.barBgImg, [20, 70], survivor.saturation, survivor.maxSaturation, 'rgb(0, 0, 0, 1)')
+hydratationBar = new Bar('Hydratation', images.barBlueImg, images.barBgImg, [20, 15], survivor.hydratation, survivor.maxHydratation, 'rgb(0, 0, 0, 1)')
+saturationBar = new Bar('Saturation', images.barWhiteImg, images.barBgImg, [20, 50], survivor.saturation, survivor.maxSaturation, 'rgb(0, 0, 0, 1)')
 
 game.pickItem(new InventoryItem(images.acornsImg, null, 'Couple of acorns'))
 game.pickItem(new InventoryItem(images.beehiveImg, null, 'Abandoned beehive'))
@@ -456,7 +472,7 @@ const eventHandler = ()=>{
                 // Canteen interaction
             } else if (checkClickPos(event, itemsFloorCollection.canteen)){
                 if (!survivor.drinking){
-                    survivor.drinking = true
+                    survivor.drink()
                     sounds.sipSound.play()
                     itemsFloorCollection.canteen.opened = true
                     setTimeout(()=>{
@@ -476,4 +492,5 @@ eventHandler()
 // debugging
 game.gameOn = true
 game.intro = false
+game.setGameTime()
 game.update()
