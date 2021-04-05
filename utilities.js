@@ -1,5 +1,4 @@
 // General use utility classes & objects
-
 class SpriteSheet{
     constructor(img, dimensions){
         this.sheet = new Image()
@@ -104,5 +103,13 @@ class WoodenSign{
                 this.animationDirection = 'down'
                 this.showNewDay = false
             }
+    }
+}
+
+class Mouth{
+    constructor(img, state){
+        this.img = img
+        this.posDim = [360, 540, this.img.cropWidth, this.img.cropHeight]
+        this.state = state
     }
 }

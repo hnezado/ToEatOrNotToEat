@@ -21,63 +21,48 @@ sounds.forestSound.loop = true
 sounds.cracklingSound.loop = true
 
 // Images loadings
-const images = {
-    bgImg: new Image(),
-    fgImg: new Image(),
-    woodenSignImg: new Image(),
-    inventoryImg: new Image(),
-    barBgImg: new Image(),
-    barBlueImg: new Image(),
-    barWhiteImg: new Image(),
-    barRedImg: new Image(),
-    bonfireImg: new SpriteSheet('images/floor-items/bonefire.png', [1, 8]),
-    canteenImg: new Image(),
-    canteenOpenedImg: new Image(),
-    backpackImg: new Image(),
-    backpackOpenedImg: new Image(),
-    acornsImg: new Image(),
-    beehiveImg: new Image(),
-    birdImg: new Image(),
-    chestnutImg: new Image(),
-    cranberriesImg: new Image(),
-    eggImg: new Image(),
-    fishImg: new Image(),
-    flowersImg: new Image(),
-    frogImg: new Image(),
-    meatImg: new Image(),
-    mushroomImg: new Image(),
-    rootsImg: new Image(),
-    snailsImg: new Image(),
-    strawberriesImg: new Image(),
-    wildSpinachImg: new Image(),
+const imagesUrls = {
+    bgImg: 'images/forest-bg.jpg',
+    fgImg: 'images/forest-fg.png',
+    woodenSignImg: 'images/wooden-sign.png',
+    inventoryImg: 'images/bag.png',
+    barBgImg: 'images/bar-bg.png',
+    barBlueImg: 'images/bar-blue.png',
+    barWhiteImg: 'images/bar-white.png',
+    barRedImg: 'images/bar-red.png',
+    canteenImg: 'images/floor-items/canteen.png',
+    canteenOpenedImg: 'images/floor-items/canteen-opened.png',
+    backpackImg: 'images/floor-items/backpack.png',
+    backpackOpenedImg: 'images/floor-items/backpack-opened.png',
+    acornsImg: 'images/inv-items/acorns.png',
+    beehiveImg: 'images/inv-items/beehive.png',
+    birdImg: 'images/inv-items/bird.png',
+    chestnutImg: 'images/inv-items/chestnut.png',
+    cranberriesImg: 'images/inv-items/cranberries.png',
+    eggImg: 'images/inv-items/egg.png',
+    fishImg: 'images/inv-items/fish.png',
+    flowersImg: 'images/inv-items/flowers.png',
+    frogImg: 'images/inv-items/frog.png',
+    meatImg: 'images/inv-items/meat.png',
+    mushroomImg: 'images/inv-items/mushroom.png',
+    rootsImg: 'images/inv-items/roots.png',
+    snailsImg: 'images/inv-items/snails.png',
+    strawberriesImg: 'images/inv-items/strawberries.png',
+    wildSpinachImg: 'images/inv-items/wild-spinach.png',
 }
-images.bgImg.src = 'images/forest-bg.jpg'
-images.fgImg.src = 'images/forest-fg.png'
-images.woodenSignImg.src = 'images/wooden-sign.png'
-images.inventoryImg.src = 'images/bag.png'
-images.barBgImg.src = 'images/bar-bg.png'
-images.barBlueImg.src = 'images/bar-blue.png'
-images.barWhiteImg.src = 'images/bar-white.png'
-images.barRedImg.src = 'images/bar-red.png'
-images.canteenImg.src = 'images/floor-items/canteen.png'
-images.canteenOpenedImg.src = 'images/floor-items/canteen-opened.png'
-images.backpackImg.src = 'images/floor-items/backpack.png'
-images.backpackOpenedImg.src = 'images/floor-items/backpack-opened.png'
-images.acornsImg.src = 'images/inv-items/acorns.png'
-images.beehiveImg.src = 'images/inv-items/beehive.png'
-images.birdImg.src = 'images/inv-items/bird.png'
-images.chestnutImg.src = 'images/inv-items/chestnut.png'
-images.cranberriesImg.src = 'images/inv-items/cranberries.png'
-images.eggImg.src = 'images/inv-items/egg.png'
-images.fishImg.src = 'images/inv-items/fish.png'
-images.flowersImg.src = 'images/inv-items/flowers.png'
-images.frogImg.src = 'images/inv-items/frog.png'
-images.meatImg.src = 'images/inv-items/meat.png'
-images.mushroomImg.src = 'images/inv-items/mushroom.png'
-images.rootsImg.src = 'images/inv-items/roots.png'
-//images.snailsImg.src = 'images/inv-items/snails.png'
-images.strawberriesImg.src = 'images/inv-items/strawberries.png'
-images.wildSpinachImg.src = 'images/inv-items/wild-spinach.png'
+
+const images = {}
+
+createImages = ()=>{
+    Object.keys(imagesUrls).forEach(key=>{
+        const img = new Image()
+        img.src = imagesUrls[key]
+        images[key] = img
+    })
+    images['bonfireImg'] = new SpriteSheet('images/floor-items/bonefire.png', [1, 8])
+    images['mouthImg'] = new SpriteSheet('images/mouth.png', [2, 1])
+}
+createImages()
 
 // Survivor class
 class Survivor {
@@ -136,10 +121,16 @@ class Survivor {
     drink = ()=>{
         this.drinking = true
         this.hydratation += 10
+        if (this.hydratation > this.maxHydratation) this.hydratation = this.maxHydratation
     }
     
     eat = ()=>{
-        
+        // EATING COOLDOWN HERE
+        this.eating = true
+        sounds.yummySound.play()
+        this.saturation += game.cursor.calories
+        if (this.saturation > this.maxSaturation) this.saturation = this.maxSaturation
+        game.cursor = null
     }
     
     searchFood = ()=>{
@@ -179,7 +170,7 @@ class Game {
         this.opacityOutCounter = 0
         this.gameOn = false
         this.intro = true
-        this.sound = false
+        this.sound = true
         this.showInventory = false
         this.invPos = [canvas.width*0.5-images.inventoryImg.width*0.5, canvas.height*0.5-images.inventoryImg.height*0.5]
         this.relativePosGrid = {
@@ -253,6 +244,7 @@ class Game {
             this.displayFg()
             this.displayInventory()
             this.displayBars()
+            this.displayMouth()
             survivor.survivorLoad()
             this.checkDays()
             this.checkCursor()
@@ -312,7 +304,18 @@ class Game {
         checkHoverPos(hydratationBar) ? hydratationBar.hovering = true : hydratationBar.hovering = false
         checkHoverPos(saturationBar) ? saturationBar.hovering = true : saturationBar.hovering = false
     }
-        
+
+    displayMouth(){
+        if (checkHoverPos(null, mouth.posDim)){
+            ctx.drawImage(mouth.img.sheet, mouth.img.crops[1].x, mouth.img.crops[1].y, 
+                mouth.img.crops[1].w, mouth.img.crops[1].h,
+                mouth.posDim[0], mouth.posDim[1], mouth.img.crops[1].w, mouth.img.crops[1].h)
+        } else {
+            ctx.drawImage(mouth.img.sheet, 0, 0, mouth.img.crops[0].w, mouth.img.crops[0].h,
+                mouth.posDim[0], mouth.posDim[1], mouth.img.crops[0].w, mouth.img.crops[0].h)
+        }
+    }
+
     checkDays = ()=>{
         const timeDivisor = 120
         if (Math.floor(this.gameTime%timeDivisor) === 0){
@@ -375,6 +378,7 @@ game = new Game()
 woodenSign = new WoodenSign(images.woodenSignImg)
 hydratationBar = new Bar('Hydratation', images.barBlueImg, images.barBgImg, [20, 15], survivor.hydratation, survivor.maxHydratation, 'rgb(0, 0, 0, 1)')
 saturationBar = new Bar('Saturation', images.barWhiteImg, images.barBgImg, [20, 50], survivor.saturation, survivor.maxSaturation, 'rgb(0, 0, 0, 1)')
+mouth = new Mouth(images.mouthImg, 'closed')
 
 game.putItemInBag(new InventoryItem(images.acornsImg, null, 'Couple of acorns', 120))
 game.putItemInBag(new InventoryItem(images.beehiveImg, null, 'Abandoned beehive', 1500, 'broken'))
@@ -417,8 +421,8 @@ const checkClickPos = (object, pos, dim)=>{
                 return true
         } else {return false}
     } else {
-        if (mouseClickPos[0] > game.invPos[0]+pos[0] && mouseClickPos[0] < game.invPos[0]+pos[0]+dim[0] &&
-            mouseClickPos[1] > game.invPos[1]+pos[1] && mouseClickPos[1] < game.invPos[1]+pos[1]+dim[1]){
+        if (mouseClickPos[0] > pos[0] && mouseClickPos[0] < pos[0]+dim[0] &&
+            mouseClickPos[1] > pos[1] && mouseClickPos[1] < pos[1]+dim[1]){
                 return true
         } else {return false}
     }
@@ -431,8 +435,8 @@ const checkHoverPos = (object, posDim)=>{
                 return true
             } else {return false}
     } else {
-        if (mousePos[0] > posDim[0] && mouseClickPos[0] < posDim[0]+posDim[2] &&
-            mousePos[1] > posDim[1] && mouseClickPos[1] < posDim[1]+posDim[3]){
+        if (mousePos[0] > posDim[0] && mousePos[0] < posDim[0]+posDim[2] &&
+            mousePos[1] > posDim[1] && mousePos[1] < posDim[1]+posDim[3]){
                 return true
         } else {return false}
     }
@@ -474,11 +478,20 @@ const eventHandler = ()=>{
                 }
             }
 
+            if (game.cursor){
+                // Mouth interaction
+                console.log(mouseClickPos)
+                console.log([mouth.posDim[0], mouth.posDim[1]], [mouth.posDim[2], mouth.posDim[3]])
+                if (checkClickPos(null, [mouth.posDim[0], mouth.posDim[1]], [mouth.posDim[2], mouth.posDim[3]])){
+                    survivor.eat()
+                }
+            }
+
             // Inventory interactions
             if (game.showInventory){
                 // Inventory Items interactions
                 Object.entries(game.relativePosGrid).forEach(invCell=>{
-                    if (checkClickPos(null, invCell[1], game.invCellDimensions)){
+                    if (checkClickPos(null, [invCell[1][0]+game.invPos[0], invCell[1][1]+game.invPos[1]], game.invCellDimensions)){
                         if (itemsInvGrid[invCell[0]-1] instanceof InventoryItem){
                             if (!game.cursor){
                                 itemsInvGrid[invCell[0]-1].pickUpItem(invCell[0]-1)
@@ -523,8 +536,8 @@ checkSound()
 eventHandler()
 
 // debugging
-game.gameOn = true
-game.intro = false
-game.setGameTime()
-game.openCloseInventory()
-game.update()
+// game.gameOn = true
+// game.intro = false
+// game.setGameTime()
+// game.openCloseInventory()
+// game.update()
