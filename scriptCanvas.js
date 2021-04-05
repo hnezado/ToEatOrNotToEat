@@ -306,7 +306,7 @@ class Game {
     }
 
     displayMouth(){
-        if (checkHoverPos(null, mouth.posDim)){
+        if (checkHoverPos(null, mouth.posDim) && this.cursor){
             ctx.drawImage(mouth.img.sheet, mouth.img.crops[1].x, mouth.img.crops[1].y, 
                 mouth.img.crops[1].w, mouth.img.crops[1].h,
                 mouth.posDim[0], mouth.posDim[1], mouth.img.crops[1].w, mouth.img.crops[1].h)
