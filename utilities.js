@@ -48,10 +48,9 @@ class Bar{
         this.maxValue = maxValue
         this.hovering = false
         textColor ? this.textColor = textColor : this.textColor = 'rgb(255, 255, 255, 1)'
-        this.typeTextWidth = ctx.measureText(this.type).width
     }
 
-    displayBar = (value, avoidBugNewDay)=>{
+    displayBar = (value)=>{
         this.value = value
         ctx.drawImage(this.imgBg, this.pos[0], this.pos[1], this.w, this.h)
         ctx.drawImage(this.img, 0, 0, this.w*value/this.maxValue, this.h, 
@@ -62,9 +61,9 @@ class Bar{
         ctx.font = '15px AlbertTextBold'
         ctx.fillStyle = this.textColor
         if (this.hovering){
-            ctx.fillText(this.type, this.pos[0]+this.img.width*0.5-this.typeTextWidth*0.5, this.pos[1]+20)
+            ctx.fillText(this.type, this.pos[0]+this.img.width*0.5, this.pos[1]+20)
         } else {
-            ctx.fillText(percentage, this.pos[0]+this.img.width*0.5-35*0.5, this.pos[1]+20)
+            ctx.fillText(percentage, this.pos[0]+this.img.width*0.5, this.pos[1]+20)
         }
     }
 }
@@ -90,8 +89,7 @@ class WoodenSign{
             this.img.naturalWidth, this.img.naturalHeight)
         ctx.font = '40px AlbertTextBold'
         const dayText = `Day ${this.daysCount}`
-        const dayTextWidth = ctx.measureText(dayText).width
-        ctx.fillText(dayText, this.pos[0]+this.img.width*0.5-dayTextWidth*0.5, this.pos[1]+120)
+        ctx.fillText(dayText, this.pos[0]+this.img.width*0.5, this.pos[1]+120)
         if (direction === 'down'){
             this.pos[1] += 3
             if (this.pos[1] >= -70){

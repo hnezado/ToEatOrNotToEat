@@ -1,6 +1,8 @@
 const canvas = document.getElementById('canvas')
 const ctx = canvas.getContext('2d')
 let mousePos = [0, 0]
+let mouseClickPos = [0, 0]
+ctx.textAlign = 'center'
 
 // Sound loadings
 const sounds = {
@@ -119,31 +121,74 @@ class FloorItem {
 
 //Inventory Item class
 class InventoryItem {
-    constructor(img, cookedImg, description){
+    constructor(img, cookedImg, description, calories, state){
         this.img = img
         this.pos = [0, 0]
         cookedImg ? this.cookedImg = cookedImg : this.cookedImg = null
+        this.width = this.img.naturalWidth
+        this.height = this.img.naturalHeight
 
-        this.cooked = false
+        ctx.font = '20px AlbertTextBold'
         this.description = description
-        this.boxSize = [ctx.measureText(this.description).width, 40]
+        this.longestText = Math.max(this.description.length, `(${this.foodState}) ${this.calories} calories`.length)
+        this.boxWidth = ctx.measureText(' ').width*this.longestText
+
+        calories ? this.boxHeight = 80 : this.boxHeight = 40
         this.showBox = false
+
+        calories ? this.calories = calories : this.calories = null
+        
+        state ? this.foodState = state : this.foodState = 'raw'
+        this.cookedCount = 0
     }
 
     displayInvItem = ()=>{
         if (this.cooked) {
-            ctx.drawImage(this.cookedImg, this.pos[0], this.pos[1], 29, 29)
+            ctx.drawImage(this.cookedImg, this.pos[0], this.pos[1], this.width, this.height)
         } else {
-            ctx.drawImage(this.img, this.pos[0], this.pos[1], 29, 29)
+            ctx.drawImage(this.img, this.pos[0], this.pos[1], this.width, this.height)
         }
     }
 
     displayInfoBox = ()=>{
         ctx.fillStyle = 'rgb(0, 0, 0, .7)'
-        ctx.fillRect(mousePos[0]+5, mousePos[1]+5, this.boxSize[0]*2, this.boxSize[1])
+        ctx.fillRect(mousePos[0]+5, mousePos[1]+5, this.boxWidth*2, this.boxHeight)
         ctx.font = '20px AlbertTextBold'
         ctx.fillStyle = 'rgb(255, 255, 255, 1)'
-        ctx.fillText(this.description, mousePos[0]+15, mousePos[1]+32)
+        ctx.fillText(this.description, mousePos[0]+this.boxWidth, mousePos[1]+32)
+        if (this.calories){
+            ctx.font = '15px AlbertTextBold'
+            ctx.fillStyle = 'grey'
+            ctx.fillText(`(${this.foodState.charAt(0).toUpperCase() + this.foodState.slice(1)}) ${this.calories} calories`, mousePos[0]+this.boxWidth, mousePos[1]+64)
+        }
+    }
+
+    pickUpItem = (index)=>{
+        game.cursor = this
+        itemsInvGrid[index] = 0
+    }
+
+    swapItem = (index)=>{
+        const itemBuffer = game.cursor
+        game.cursor = this
+        itemsInvGrid[index] = itemBuffer
+    }
+
+    cookFood = (cookingSpeed)=>{
+        switch (this.foodState) {
+            case 'raw':
+                this.cookedCount += cookingSpeed
+                if (this.cookedCount >= 100) this.foodState = 'cooked'
+                break
+            case 'cooked':
+                this.cookedCount += cookingSpeed
+                if (this.cookedCount > 110) this.foodState = 'burned'
+                break
+            case 'burned':
+                return `It's already burned`
+            default:
+                return 'Not cookable'
+        }
     }
 }
 
@@ -162,20 +207,28 @@ class Survivor {
 
         this.drinking = false
         this.openingBag = false
-        this.alreadySet = false
+        this.alreadySetDebuffs = false
         this.timeBuffers = {
             hydratationBuffer: 0,
             saturationBuffer: 0
         }
+
+        this.bonfireAreas = {
+            1: [itemsFloorCollection.bonfire.pos[0]+24, itemsFloorCollection.bonfire.pos[1]+23, 100, 150],
+            2: [itemsFloorCollection.bonfire.pos[0]+41, itemsFloorCollection.bonfire.pos[1]+73, 66, 100],
+            3: [itemsFloorCollection.bonfire.pos[0]+58, itemsFloorCollection.bonfire.pos[1]+123, 33, 50]
+        }
+        this.printed = false
     }
     
     survivorLoad = ()=>{
         this.loadDebuffs()
+        this.cook()
     }
 
     loadDebuffs = ()=>{
-        if (!this.alreadySet){
-            this.alreadySet = true
+        if (!this.alreadySetDebuffs){
+            this.alreadySetDebuffs = true
             setInterval(()=>{
                 this.hydratationDebuff(this.hydratationLoss)
                 this.saturationDebuff(this.saturationLoss)
@@ -205,11 +258,34 @@ class Survivor {
     searchFood = ()=>{
         
     }
+
+    cook = ()=>{
+        if (game.cursor && !game.showInventory){
+            if (checkHoverPos(null, this.bonfireAreas['1'])){
+                if (this.printed !== '1'){
+                    console.log('1')
+                    this.printed = '1'
+                    // No entra
+                }
+            } else if (checkHoverPos(null, this.bonfireAreas['2'])){
+                if (this.printed !== '2'){
+                    console.log('2')
+                    this.printed = '2'
+                }
+            } else if (checkHoverPos(null, this.bonfireAreas['3'])){
+                if (this.printed !== '3'){
+                    console.log('3')
+                    this.printed = '3'
+                }
+            }
+        }
+    }
 }
 
 // Game class
 class Game {
     constructor(){
+        this.cursor = null
         this.gameTime = 0
         this.daysCount = 0
         this.opacityInCounter = 0
@@ -223,8 +299,9 @@ class Game {
             1: [25, 26], 2: [65, 26], 3: [106, 26], 4: [146, 26],
             5: [25, 66], 6: [65, 66], 7: [106, 66], 8: [146, 66],
             9: [25, 106], 10: [65, 106], 11: [106, 106], 12: [146, 106],
-            13: [25, 146], 14: [65, 146], 15: [106, 146], 9: [146, 146],
+            13: [25, 146], 14: [65, 146], 15: [106, 146], 16: [146, 146],
         }
+        this.invCellDimensions = [29, 29]
     }
 
     fadeOut = ()=>{
@@ -291,6 +368,7 @@ class Game {
             this.displayBars()
             survivor.survivorLoad()
             this.checkDays()
+            this.checkCursor()
         }
         window.requestAnimationFrame(()=>this.update())
     }
@@ -349,18 +427,35 @@ class Game {
     }
         
     checkDays = ()=>{
-        if (Math.floor(this.gameTime%120) === 0){
-            this.daysCount = Math.floor(this.gameTime/10)
+        const timeDivisor = 120
+        if (Math.floor(this.gameTime%timeDivisor) === 0){
+            this.daysCount = Math.floor(this.gameTime/timeDivisor)
             woodenSign.showNewDay = true
         }
         woodenSign.displayDays(this.daysCount)
     }
 
     openCloseInventory = ()=>{
-        this.showInventory = !this.showInventory
+        survivor.openingBag = true
+        sounds.zipSound.play()
+        setTimeout(()=>{
+            this.showInventory = !this.showInventory
+            itemsFloorCollection.backpack.opened = !itemsFloorCollection.backpack.opened
+            survivor.openingBag = false
+        }, 1000)
     }
 
-    pickItem = (item)=>{
+    checkCursor = ()=>{
+        if (this.cursor) {
+            canvas.style.cursor = 'none'
+            ctx.drawImage(this.cursor.img, mousePos[0]-this.cursor.width*0.5, 
+                mousePos[1]-this.cursor.height*0.5, this.cursor.width, this.cursor.height)
+        } else {
+            canvas.style.cursor = 'auto'
+        }
+    }
+
+    putItemInBag = (item)=>{
         for (let [index, invCell] of itemsInvGrid.entries()){
             if (!(invCell instanceof InventoryItem)){
                 itemsInvGrid[index] = item
@@ -394,11 +489,11 @@ woodenSign = new WoodenSign(images.woodenSignImg)
 hydratationBar = new Bar('Hydratation', images.barBlueImg, images.barBgImg, [20, 15], survivor.hydratation, survivor.maxHydratation, 'rgb(0, 0, 0, 1)')
 saturationBar = new Bar('Saturation', images.barWhiteImg, images.barBgImg, [20, 50], survivor.saturation, survivor.maxSaturation, 'rgb(0, 0, 0, 1)')
 
-game.pickItem(new InventoryItem(images.acornsImg, null, 'Couple of acorns'))
-game.pickItem(new InventoryItem(images.beehiveImg, null, 'Abandoned beehive'))
-game.pickItem(new InventoryItem(images.birdImg, null, 'Plucked bird'))
-game.pickItem(new InventoryItem(images.meatImg, null, 'Piece of meat'))
-game.pickItem(new InventoryItem(images.wildSpinachImg, null, 'Bunch of wild spinach leaves'))
+game.putItemInBag(new InventoryItem(images.acornsImg, null, 'Couple of acorns', 120))
+game.putItemInBag(new InventoryItem(images.beehiveImg, null, 'Abandoned beehive', 1500, 'broken'))
+game.putItemInBag(new InventoryItem(images.birdImg, null, 'Plucked bird', 200))
+game.putItemInBag(new InventoryItem(images.meatImg, null, 'Piece of meat', 300))
+game.putItemInBag(new InventoryItem(images.wildSpinachImg, null, 'Bunch of wild spinach leaves', 'fresh'))
 
 // General functions
 // Update mouse position
@@ -406,6 +501,11 @@ updateMousePos = ()=>{
     canvas.onmousemove = (event)=>{
         mousePos = [event.offsetX, event.offsetY]
     }
+}
+
+//Update mouse click position
+updateMouseClickPos = (event)=>{
+    mouseClickPos = [event.offsetX, event.offsetY]
 }
 
 // Sound Checker
@@ -422,19 +522,33 @@ const checkSound = ()=>{
     }
 }
 
-// Position Click Checker
-const checkClickPos = (event, object)=>{
-    if (event.offsetX > object.pos[0] && event.offsetX < object.pos[0]+object.width &&
-        event.offsetY > object.pos[1] && event.offsetY < object.pos[1]+object.height){
-            return true
-    } else {return false}
+// Position Click/Hover Checker
+const checkClickPos = (object, pos, dim)=>{
+    if (object){
+        if (mouseClickPos[0] > object.pos[0] && mouseClickPos[0] < object.pos[0]+object.width &&
+            mouseClickPos[1] > object.pos[1] && mouseClickPos[1] < object.pos[1]+object.height){
+                return true
+        } else {return false}
+    } else {
+        if (mouseClickPos[0] > game.invPos[0]+pos[0] && mouseClickPos[0] < game.invPos[0]+pos[0]+dim[0] &&
+            mouseClickPos[1] > game.invPos[1]+pos[1] && mouseClickPos[1] < game.invPos[1]+pos[1]+dim[1]){
+                return true
+        } else {return false}
+    }
 }
 
-const checkHoverPos = (object)=>{
-    if (mousePos[0] > object.pos[0] && mousePos[0] < object.pos[0]+object.img.width &&
-        mousePos[1] > object.pos[1] && mousePos[1] < object.pos[1]+object.img.height){
-            return true
+const checkHoverPos = (object, posDim)=>{
+    if (object){
+        if (mousePos[0] > object.pos[0] && mousePos[0] < object.pos[0]+object.img.width &&
+            mousePos[1] > object.pos[1] && mousePos[1] < object.pos[1]+object.img.height){
+                return true
+            } else {return false}
+    } else {
+        if (mousePos[0] > posDim[0] && mouseClickPos[0] < posDim[0]+posDim[2] &&
+            mousePos[1] > posDim[1] && mouseClickPos[1] < posDim[1]+posDim[3]){
+                return true
         } else {return false}
+    }
 }
 
 // Event handlers
@@ -461,35 +575,56 @@ const eventHandler = ()=>{
         checkSound()
     }
 
-    // Game events
+    // Game events (clicks)
     canvas.onclick = function(event){
-        if (game.gameOn && !game.intro){
-            // Bonfire interaction
-            if (checkClickPos(event, itemsFloorCollection.bonfire)){
-                sounds.ouchSound.play()
+        updateMouseClickPos(event)
 
-                // Backpack interaction
-            } else if (checkClickPos(event, itemsFloorCollection.backpack)){
+        if (game.gameOn && !game.intro){
+            // Backpack interaction
+            if (checkClickPos(itemsFloorCollection.backpack)){
                 if (!survivor.openingBag){
-                    survivor.openingBag = true
-                    sounds.zipSound.play()
-                    setTimeout(()=>{
-                        itemsFloorCollection.backpack.opened = !itemsFloorCollection.backpack.opened
-                        game.openCloseInventory()
-                        survivor.openingBag = false
-                    }, 1000)
+                    game.openCloseInventory()
                 }
-    
-                // Canteen interaction
-            } else if (checkClickPos(event, itemsFloorCollection.canteen)){
-                if (!survivor.drinking){
-                    survivor.drink()
-                    sounds.sipSound.play()
-                    itemsFloorCollection.canteen.opened = true
-                    setTimeout(()=>{
-                        itemsFloorCollection.canteen.opened = false
-                        survivor.drinking = false
-                    }, 3200)
+            }
+
+            // Inventory interactions
+            if (game.showInventory){
+                // Inventory Items interactions
+                Object.entries(game.relativePosGrid).forEach(invCell=>{
+                    if (checkClickPos(null, invCell[1], game.invCellDimensions)){
+                        if (itemsInvGrid[invCell[0]-1] instanceof InventoryItem){
+                            if (!game.cursor){
+                                itemsInvGrid[invCell[0]-1].pickUpItem(invCell[0]-1)
+                            } else {
+                                itemsInvGrid[invCell[0]-1].swapItem(invCell[0]-1)
+                            }
+                        } else {
+                            if (game.cursor){
+                                itemsInvGrid[invCell[0]-1] = game.cursor
+                                game.cursor = null
+                            }
+                        }
+                    }
+                })
+            } else {
+                    if (!game.cursor){
+                        // Environment interactions
+                        // Bonfire interaction
+                        if (checkClickPos(itemsFloorCollection.bonfire)){
+                            sounds.ouchSound.play()
+                
+                            // Canteen interaction
+                        } else if (checkClickPos(itemsFloorCollection.canteen)){
+                            if (!survivor.drinking){
+                                survivor.drink()
+                                sounds.sipSound.play()
+                                itemsFloorCollection.canteen.opened = true
+                                setTimeout(()=>{
+                                    itemsFloorCollection.canteen.opened = false
+                                    survivor.drinking = false
+                                }, 3200)
+                            }
+                        }
                 }
             }
         }
@@ -504,4 +639,5 @@ eventHandler()
 game.gameOn = true
 game.intro = false
 game.setGameTime()
+game.openCloseInventory()
 game.update()
