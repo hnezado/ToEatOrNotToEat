@@ -23,10 +23,10 @@ class Survivor {
     constructor(){
         this.hydration = 90
         this.maxHydration = 100
-        this.hydrationLoss = 0.005
+        this.hydrationLoss = 0.01
         this.saturation = 70
         this.maxSaturation = 100
-        this.saturationLoss = 0.003
+        this.saturationLoss = 0.006
         this.wet = 0
         this.maxWet = 50
         this.bodyHeat = 37
@@ -119,8 +119,10 @@ class Survivor {
             this.checkStatsLimits()
 
             setTimeout(()=>{this.eating = false}, 5000)
-            if (game.cursor.calories > 500){
-                setTimeout(()=>{sounds.yummySound.play()}, 1000)
+            if (game.cursor.type === 'meat' && game.cursor.state === 'raw'){
+                setTimeout(()=>{sounds.yuckSound.play()}, 2000)
+            } else if (game.cursor.calories > 500){
+                setTimeout(()=>{sounds.yummySound.play()}, 2000)
             }
             game.cursor = null
         }
@@ -129,7 +131,9 @@ class Survivor {
     search = ()=>{
         game.intro = true
         game.fadeOut()
-        this.statsPenalty(25)
+        const itemsGen = itemsGeneration.genItems()
+        this.statsPenalty(itemsGen.length*2)
+        game.putItemInBag(itemsGen)
     }
 
     cook = ()=>{
@@ -199,6 +203,7 @@ class Game {
         this.opacityInCounter = 100
         sounds.forestSound.play()
         sounds.cracklingSound.play()
+        itemsFloorCollection['footprints'].active = false
         const opInInterval = setInterval(()=>{
             const opacity = this.opacityInCounter*0.01
             this.displayBg()
@@ -267,6 +272,13 @@ class Game {
         window.requestAnimationFrame(()=>this.update())
     }
 
+        
+        // const list = ['acorns', 'acorns', 'flowers', 'flowers', 'flowers']
+        // const list2 = []
+        // const index = Math.floor(Math.random()*list.length)
+        // list.splice(index, 1).push(list2)
+        //     return list2
+
     displayBg = ()=>{
         ctx.drawImage(images.bgImg, 0, 0, images.bgImg.width, images.bgImg.height)
     }
@@ -288,7 +300,7 @@ class Game {
             ctx.drawImage(images.inventoryImg, this.invPos[0], this.invPos[1], 
                 images.inventoryImg.naturalWidth, images.inventoryImg.naturalHeight)
             this.displayInvItems()
-            this.displayInfoBoxes()
+            // this.displayInfoBoxes()
         }
     }
     
@@ -302,15 +314,15 @@ class Game {
         }
     }
 
-    displayInfoBoxes = (mousePos)=>{
-        for (let invCell of itemsInvGrid){
-            if (invCell instanceof InventoryItem){
-                if (checkHoverPos(mousePos, invCell.posDim)){
-                    invCell.displayInfoBox()
-                }
-            }
-        }
-    }
+    // displayInfoBoxes = (mousePos)=>{
+    //     for (let invCell of itemsInvGrid){
+    //         if (invCell instanceof InventoryItem){
+    //             if (checkHoverPos(mousePos, invCell.posDim)){
+    //                 invCell.displayInfoBox()
+    //             }
+    //         }
+    //     }
+    // }
 
     displayBars = ()=>{
         hydrationBar.displayBar(survivor.hydration)
@@ -355,27 +367,42 @@ class Game {
     checkCursor = ()=>{
         if (this.cursor) {
             canvas.style.cursor = 'none'
-            ctx.drawImage(this.cursor.img, mousePos[0]-this.cursor.width*0.5, 
-                mousePos[1]-this.cursor.height*0.5, this.cursor.width, this.cursor.height)
+            this.cursor.displayInvItem(mousePos)
         } else {
             canvas.style.cursor = `url('images/cursor.png'), auto`
         }
     }
 
     checkGeneralHover = ()=>{
-        fire.checkFireHover(mousePos)
-        if (checkHoverPos(mousePos, itemsFloorCollection['footprints'].posDim)){
-            itemsFloorCollection['footprints'].active = true
-        } else {itemsFloorCollection['footprints'].active = false}
+        if (!this.showInventory){
+            fire.checkFireHover(mousePos)
+            if (checkHoverPos(mousePos, itemsFloorCollection['footprints'].posDim)){
+                itemsFloorCollection['footprints'].active = true
+            } else {itemsFloorCollection['footprints'].active = false}
+        }
     }
 
     putItemInBag = (item)=>{
-        for (let [index, invCell] of itemsInvGrid.entries()){
-            if (!(invCell instanceof InventoryItem)){
-                itemsInvGrid[index] = item
-                itemsInvGrid[index].posDim[0] = this.relativePosGrid[index+1][0]
-                itemsInvGrid[index].posDim[1] = this.relativePosGrid[index+1][1]
-                break
+        if (item instanceof Array){
+            for (let itm of item){
+                for (let [index, invCell] of Object.entries(itemsInvGrid)){
+                    if (!(invCell instanceof InventoryItem)){
+                        itemsInvGrid[index] = itm
+                        itemsInvGrid[index].posDim[0] = this.relativePosGrid[Number(index)+1][0]
+                        itemsInvGrid[index].posDim[1] = this.relativePosGrid[Number(index)+1][1]
+                        break
+                    }
+                }
+            }
+            
+        } else {
+            for (let [index, invCell] of Object.entries(itemsInvGrid)){
+                if (!(invCell instanceof InventoryItem)){
+                    itemsInvGrid[index] = item
+                    itemsInvGrid[index].posDim[0] = this.relativePosGrid[Number(index)+1][0]
+                    itemsInvGrid[index].posDim[1] = this.relativePosGrid[Number(index)+1][1]
+                    break
+                }
             }
         }
     }
@@ -432,6 +459,7 @@ const initialSetting = ()=>{
 
     survivor = new Survivor()
     game = new Game()
+    itemsGeneration = new ItemGeneration()
 
     woodenSign = new WoodenSign(images.woodenSignImg)
     hydrationBar = new Bar('Hydration', images.barBlueImg, images.barBgImg, [20, 15], survivor.hydration, survivor.maxHydration, 'rgb(0, 0, 0, 1)')
@@ -439,11 +467,11 @@ const initialSetting = ()=>{
     mouth = new Mouth(mouthSpriteSheet, 'closed')
     fire = new Fire(itemsFloorCollection.bonfire)
     
-    game.putItemInBag(new InventoryItem(images.acornsImg, 'Couple of acorns', 120))
-    game.putItemInBag(new InventoryItem(images.beehiveImg, 'Abandoned beehive', 1500, 'broken'))
-    game.putItemInBag(new InventoryItem(images.birdImg, 'Plucked bird', 200))
-    game.putItemInBag(new InventoryItem(images.meatImg, 'Piece of meat', 300))
-    game.putItemInBag(new InventoryItem(images.wildSpinachImg, 'Bunch of wild spinach leaves', null, 'fresh'))
+    game.putItemInBag(itemsGeneration.genSingleItem('acorns'))
+    // game.putItemInBag(itemsGeneration.genSingleItem('beehive'))
+    // game.putItemInBag(itemsGeneration.genSingleItem('bird'))
+    // game.putItemInBag(itemsGeneration.genSingleItem('meat'))
+    // game.putItemInBag(itemsGeneration.genSingleItem('wild-spinach'))
 
     game.checkSound()
     eventHandler()

@@ -31,6 +31,7 @@ const imagesUrls = {
     barBlueImg: 'images/bar-blue.png',
     barWhiteImg: 'images/bar-white.png',
     barRedImg: 'images/bar-red.png',
+    
     acornsImg: 'images/inv-items/acorns.png',
     beehiveImg: 'images/inv-items/beehive.png',
     birdImg: 'images/inv-items/bird.png',
