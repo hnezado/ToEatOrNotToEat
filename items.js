@@ -1,10 +1,13 @@
 // Floor Item class
 class FloorItem {
-    constructor(img, pos, sizeMult, animInterval, activeImg){
+    constructor(img, pos, animInterval){
         this.img = img
-        this.pos = pos
-        sizeMult ? this.sizeMultiplier = sizeMult : this.sizeMultiplier = 1
-        animInterval ? this.animInterval = animInterval : this.animInterval = 0
+
+        this.img instanceof SpriteSheet ? this.width = this.img.cropWidth : this.width = this.img.naturalWidth
+        this.img instanceof SpriteSheet ? this.height = this.img.cropHeight : this.height = this.img.naturalHeight
+        this.posDim = [pos[0], pos[1], this.width, this.height]
+
+        animInterval ? this.animInterval = animInterval : this.animInterval = null
         this.itemCropIndex = 0
         if (this.animInterval && this.img instanceof SpriteSheet){
             this.itemAnimInterval = setInterval(()=>{
@@ -14,24 +17,30 @@ class FloorItem {
                 }
             }, this.animInterval)
         }
-        this.img instanceof SpriteSheet ? this.width = this.img.cropWidth*this.sizeMultiplier : 
-        this.width = this.img.naturalWidth*this.sizeMultiplier
-        this.img instanceof SpriteSheet ? this.height = this.img.cropHeight*this.sizeMultiplier : 
-        this.height = this.img.naturalHeight*this.sizeMultiplier
-        activeImg ? this.activeImg = activeImg : this.activeImg = null
-        this.opened = false
+        
+        this.active = false
     }
     
     displayFloorItem = ()=>{
-        if (this.img instanceof SpriteSheet){
+        if (this.animInterval){
             ctx.drawImage(this.img.sheet, 
-                this.img.crops[this.itemCropIndex].x, this.img.crops[this.itemCropIndex].y, this.img.crops[this.itemCropIndex].w, this.img.crops[this.itemCropIndex].h,
-                this.pos[0], this.pos[1], this.img.crops[this.itemCropIndex].w*this.sizeMultiplier, this.img.crops[this.itemCropIndex].h*this.sizeMultiplier)
+                this.img.crops[this.itemCropIndex].x, this.img.crops[this.itemCropIndex].y, 
+                this.img.crops[this.itemCropIndex].w, this.img.crops[this.itemCropIndex].h,
+                this.posDim[0], this.posDim[1], 
+                this.img.crops[this.itemCropIndex].w, this.img.crops[this.itemCropIndex].h)
         } else {
-            if (this.opened){
-                ctx.drawImage(this.activeImg, this.pos[0], this.pos[1], this.img.width*this.sizeMultiplier, this.img.height*this.sizeMultiplier)
+            if (this.active){
+                ctx.drawImage(this.img.sheet, 
+                    this.img.crops[1].x, this.img.crops[1].y, 
+                    this.img.crops[1].w, this.img.crops[1].h, 
+                    this.posDim[0], this.posDim[1], 
+                    this.width, this.height)
             } else {
-                ctx.drawImage(this.img, this.pos[0], this.pos[1], this.img.width*this.sizeMultiplier, this.img.height*this.sizeMultiplier)
+                ctx.drawImage(this.img.sheet, 
+                    this.img.crops[0].x, this.img.crops[0].y,
+                    this.img.crops[0].w, this.img.crops[0].h,
+                    this.posDim[0], this.posDim[1], 
+                    this.width, this.height)
             }
         }
     }
@@ -40,12 +49,11 @@ class FloorItem {
 
 //Inventory Item class
 class InventoryItem {
-    constructor(img, cookedImg, description, calories, state){
-        this.img = img
-        this.pos = [0, 0]
-        cookedImg ? this.cookedImg = cookedImg : this.cookedImg = null
+    constructor(){
+        this.img
         this.width = this.img.naturalWidth
         this.height = this.img.naturalHeight
+        this.posDim = [0, 0, this.width, this.height]
 
         ctx.font = '20px AlbertTextBold'
         this.description = description
@@ -55,21 +63,22 @@ class InventoryItem {
         calories ? this.boxHeight = 80 : this.boxHeight = 40
         this.showBox = false
 
-        calories ? this.calories = calories : this.calories = null
+        calories ? this.calories = calories : this.calories = 0
         
+        this.cookCounter = 0
         state ? this.foodState = state : this.foodState = 'raw'
         this.cookedCount = 0
     }
 
     displayInvItem = ()=>{
         if (this.cooked) {
-            ctx.drawImage(this.cookedImg, this.pos[0], this.pos[1], this.width, this.height)
+            ctx.drawImage(this.cookedImg, this.posDim[0], this.posDim[1], this.width, this.height)
         } else {
-            ctx.drawImage(this.img, this.pos[0], this.pos[1], this.width, this.height)
+            ctx.drawImage(this.img, this.posDim[0], this.posDim[1], this.width, this.height)
         }
     }
 
-    displayInfoBox = ()=>{
+    displayInfoBox = (mousePos)=>{
         ctx.fillStyle = 'rgb(0, 0, 0, .7)'
         ctx.fillRect(mousePos[0]+5, mousePos[1]+5, this.boxWidth*2, this.boxHeight)
         ctx.font = '20px AlbertTextBold'
@@ -93,6 +102,7 @@ class InventoryItem {
         itemsInvGrid[index] = itemBuffer
     }
 
+    // Not sure about this one
     cookFood = (cookingSpeed)=>{
         switch (this.foodState) {
             case 'raw':
@@ -109,4 +119,35 @@ class InventoryItem {
                 return 'Not cookable'
         }
     }
+}
+
+class Acorns extends InventoryItem{
+    constructor(){
+        this.name = 'acorns'
+        this.img = images.acornsImg
+        this.description = 'Couple of acorns'
+
+    }
+}
+
+const generateItem = (item)=>{
+    // numOfItems = Math.floor(Math.random()*maxItems)+1
+    // for (let i=0; i<numOfItems;i++){
+    //     chanceToGen = Math.floor(Math.random()*100)+1
+    if (item === 'acorns') return Acorns()
+    if (item === 'beehive') return Beehive()
+    if (item === 'bird') return Bird()
+    if (item === 'chestnut') return Chestnut()
+    if (item === 'cranberries') return Cranberries()
+    if (item === 'egg') return Egg()
+    if (item === 'fish') return Fish()
+    if (item === 'flowers') return Flowers()
+    if (item === 'frog') return Frog()
+    if (item === 'maggot') return Maggot()
+    if (item === 'meat') return Meat()
+    if (item === 'mushroom') return Mushroom()
+    if (item === 'roots') return Roots()
+    if (item === 'snails') return Snails()
+    if (item === 'strawberries') return Strawberries()
+    if (item === 'wild-spinach') return WildSpinach()
 }

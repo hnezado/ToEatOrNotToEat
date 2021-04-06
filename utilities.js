@@ -1,8 +1,23 @@
-// General use utility classes & objects
+// General use utility functions
+
+const checkHoverPos = (mousePos, posDim)=>{
+    if (mousePos[0] > posDim[0] && mousePos[0] < posDim[0]+posDim[2] &&
+        mousePos[1] > posDim[1] && mousePos[1] < posDim[1]+posDim[3]){
+            return true
+    } else {return false}
+}
+
+const checkClickPos = (mouseClickPos, posDim)=>{
+    if (mouseClickPos[0] > posDim[0] && mouseClickPos[0] < posDim[0]+posDim[2] &&
+        mouseClickPos[1] > posDim[1] && mouseClickPos[1] < posDim[1]+posDim[3]){
+            return true
+    } else {return false}
+}
+
+// General use utility classes
 class SpriteSheet{
     constructor(img, dimensions){
-        this.sheet = new Image()
-        this.sheet.src = img
+        this.sheet = img
 
         this.rows = dimensions[0]
         this.columns = dimensions[1]
@@ -40,9 +55,9 @@ class Bar{
         this.type = type
         this.img = img
         this.imgBg = imgBg
-        this.pos = pos
         this.w = img.naturalWidth
         this.h = img.naturalHeight
+        this.posDim = [pos[0], pos[1], this.w, this.h]
         this.value = initialValue
         this.maxValue = maxValue
         this.hovering = false
@@ -51,18 +66,18 @@ class Bar{
 
     displayBar = (value)=>{
         this.value = value
-        ctx.drawImage(this.imgBg, this.pos[0], this.pos[1], this.w, this.h)
+        ctx.drawImage(this.imgBg, this.posDim[0], this.posDim[1], this.w, this.h)
         ctx.drawImage(this.img, 0, 0, this.w*value/this.maxValue, this.h, 
-            this.pos[0], this.pos[1], this.w*value/this.maxValue, this.h)
+            this.posDim[0], this.posDim[1], this.w*value/this.maxValue, this.h)
         
         const percentage = `${Math.floor(value/this.maxValue*100*10)/10}%`
         // const percentageTextWidth = ctx.measureText(percentage).width
         ctx.font = '15px AlbertTextBold'
         ctx.fillStyle = this.textColor
         if (this.hovering){
-            ctx.fillText(this.type, this.pos[0]+this.img.width*0.5, this.pos[1]+20)
+            ctx.fillText(this.type, this.posDim[0]+this.img.width*0.5, this.posDim[1]+20)
         } else {
-            ctx.fillText(percentage, this.pos[0]+this.img.width*0.5, this.pos[1]+20)
+            ctx.fillText(percentage, this.posDim[0]+this.img.width*0.5, this.posDim[1]+20)
         }
     }
 }
