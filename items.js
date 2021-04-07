@@ -139,7 +139,7 @@ class InventoryItem {
                 this.state = 'burned'
             }
         }
-        if (this.cookingCounter > this.cookingTime+200){
+        if (this.cookingCounter > this.cookingTime+300){
             this.state = 'burned'
         }
         if (this.stateBuffer !== this.state){

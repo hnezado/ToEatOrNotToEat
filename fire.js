@@ -26,7 +26,7 @@ class Fire{
             if (this.timeOnFireCounter >= 1000 && !this.hurtCooldownSet){
                 this.hurtCooldown = setInterval(()=>{
                     sounds.ouchSound.play()
-                    survivor.statsPenalty(Math.floor(Math.random()*10)+20)
+                    survivor.statsPenalty(Math.floor(Math.random()*8)+12)
                 }, 1000)
                 this.hurtCooldownSet = true
                 this.hoveringFire = true

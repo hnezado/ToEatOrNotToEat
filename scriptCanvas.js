@@ -565,7 +565,7 @@ const eventHandler = ()=>{
                     // Bonfire interaction
                     if (checkClickPos(mouseClickPos, itemsFloorCollection.bonfire.posDim)){
                         sounds.ouchSound.play()
-                        survivor.statsPenalty(5)
+                        survivor.statsPenalty(Math.floor(Math.random()*8)+12)
                     }
                     // Canteen interaction
                     if (checkClickPos(mouseClickPos, itemsFloorCollection.canteen.posDim)){
