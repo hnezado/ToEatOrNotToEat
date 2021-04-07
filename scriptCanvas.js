@@ -431,10 +431,19 @@ class Game {
             }
         }
     }
+
+    emptyInv = ()=>{
+        itemsInvGrid = [
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+        ]
+    }
 }
 
 // Items Collection
-const itemsInvGrid = [
+let itemsInvGrid = [
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,
@@ -500,12 +509,7 @@ const eventHandler = ()=>{
         if (!game.gameOn){
             survivor = new Survivor()
             game = new Game()
-            itemsInvGrid = [
-                0, 0, 0, 0,
-                0, 0, 0, 0,
-                0, 0, 0, 0,
-                0, 0, 0, 0,
-            ]
+            game.emptyInv()
             game.startGame()
         }
     }
