@@ -139,13 +139,13 @@ class InventoryItem {
                 this.state = 'burned'
             }
         }
-        if (this.cookingCounter > this.cookingTime+300){
+        if (this.cookingCounter > this.cookingTime+250){
             this.state = 'burned'
         }
         if (this.stateBuffer !== this.state){
             if (this.state === 'cooked'){
                 sounds.hissSound.play()
-                this.calories = this.baseCalories*(Math.floor(Math.random()*3)+1.5)
+                this.calories = this.baseCalories*(Math.floor(Math.random()*4)+2)
             } else if (this.state === 'burned'){
                 sounds.hissSound.play()
                 this.calories = this.baseCalories*(Math.floor(Math.random()*0.1)+0.05)
@@ -164,7 +164,7 @@ class Acorns extends InventoryItem{
         this.description = 'Couple of acorns'
         this.baseCalories = 60
         this.calories = 60
-        this.cookingTime = 2000
+        this.cookingTime = 1500
         this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 75
@@ -198,7 +198,7 @@ class Bird extends InventoryItem{
         this.description = 'Plucked bird'
         this.baseCalories = 100
         this.calories = 100
-        this.cookingTime = 6000
+        this.cookingTime = 4500
         this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 45
@@ -215,7 +215,7 @@ class Chestnut extends InventoryItem{
         this.description = 'Mature chestnut'
         this.baseCalories = 75
         this.calories = 75
-        this.cookingTime = 2000
+        this.cookingTime = 1500
         this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 70
@@ -249,7 +249,7 @@ class Egg extends InventoryItem{
         this.description = 'Egg from an unknow bird'
         this.baseCalories = 90
         this.calories = 90
-        this.cookingTime = 1500
+        this.cookingTime = 1125
         this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 55
@@ -266,7 +266,7 @@ class Fish extends InventoryItem{
         this.description = 'Fish recently caught'
         this.baseCalories = 110
         this.calories = 110
-        this.cookingTime = 5000
+        this.cookingTime = 3750
         this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 60
@@ -300,7 +300,7 @@ class Frog extends InventoryItem{
         this.description = 'Pond frog'
         this.baseCalories = 75
         this.calories = 75
-        this.cookingTime = 3500
+        this.cookingTime = 2625
         this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 40
@@ -317,7 +317,7 @@ class Maggot extends InventoryItem{
         this.description = 'Moving maggot'
         this.baseCalories = 90
         this.calories = 90
-        this.cookingTime = 1500
+        this.cookingTime = 1125
         this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 85
@@ -334,7 +334,7 @@ class Meat extends InventoryItem{
         this.description = 'A piece of meat'
         this.baseCalories = 250
         this.calories = 250
-        this.cookingTime = 8000
+        this.cookingTime = 6000
         this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 15
@@ -351,7 +351,7 @@ class Mushroom extends InventoryItem{
         this.description = 'Healthy mushroom'
         this.baseCalories = 75
         this.calories = 75
-        this.cookingTime = 1200
+        this.cookingTime = 900
         this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 20
@@ -368,7 +368,7 @@ class Roots extends InventoryItem{
         this.description = 'Edible roots'
         this.baseCalories = 60
         this.calories = 60
-        this.cookingTime = 4000
+        this.cookingTime = 3000
         this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 80
@@ -385,7 +385,7 @@ class Snails extends InventoryItem{
         this.description = 'Some small snails'
         this.baseCalories = 80
         this.calories = 80
-        this.cookingTime = 3000
+        this.cookingTime = 2250
         this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 50
@@ -419,7 +419,7 @@ class WildSpinach extends InventoryItem{
         this.description = 'Bunch of wild spinach leaves'
         this.baseCalories = 40
         this.calories = 40
-        this.cookingTime = 1500
+        this.cookingTime = 1125
         this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 75

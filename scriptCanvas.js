@@ -23,10 +23,10 @@ class Survivor {
     constructor(){
         this.hydration = 100
         this.maxHydration = 100
-        this.hydrationLoss = 0.035
+        this.hydrationLoss = 0.032
         this.saturation = 100
         this.maxSaturation = 100
-        this.saturationLoss = 0.03
+        this.saturationLoss = 0.024
         this.wet = 0
         this.maxWet = 50
         this.bodyHeat = 37
@@ -39,8 +39,8 @@ class Survivor {
             hydrationBuffer: 0,
             saturationBuffer: 0
         }
-        this.canteenCharges = 0
-        this.maxCanteenCharges = 15
+        this.canteenCharges = 3
+        this.maxCanteenCharges = 8
     }
     
     survivorLoad = ()=>{
@@ -101,21 +101,23 @@ class Survivor {
         if (!this.drinking){
             this.drinking = true
             itemsFloorCollection.canteen.active = true
-            
             if (this.canteenCharges > 0){
                 sounds.sipSound.play()
                 this.canteenCharges--
-                this.hydration += Math.floor(Math.random()*20)+10
+                this.hydration += Math.floor(Math.random()*18)+12
                 this.checkStatsLimits()
+                setTimeout(()=>{
+                    itemsFloorCollection.canteen.active = false
+                    this.drinking = false
+                }, 2800)
             } else {
                 sounds.emptySound.play()
+                setTimeout(()=>{
+                    itemsFloorCollection.canteen.active = false
+                    this.drinking = false
+                }, 1700)
             }
-            
-            setTimeout(()=>{
-                itemsFloorCollection.canteen.active = false
-                this.drinking = false
-            }, 3200)
-        }
+        }  
     }
     
     eat = ()=>{
@@ -125,7 +127,7 @@ class Survivor {
             this.saturation += game.cursor.calories*0.05
             this.checkStatsLimits()
 
-            setTimeout(()=>{this.eating = false}, 3500)
+            setTimeout(()=>{this.eating = false}, 1700)
             if (game.cursor.type === 'meat' && game.cursor.state === 'raw' || game.cursor.state === 'burned'){
                 setTimeout(()=>{sounds.yuckSound.play()}, 2000)
             } else if (game.cursor.calories > 500 || game.cursor.state === 'cooked'){
@@ -354,7 +356,7 @@ class Game {
                 itemsFloorCollection.backpack.active = false
             }
             survivor.openingBag = false
-        }, 1000)
+        }, 700)
     }
 
     checkCursor = ()=>{
