@@ -52,7 +52,7 @@ h1 a:hover {
 
 #canvas {
     border: 2px double rgba(0,100,0,0.75);
-    /* background-image: url("images/forest-bg.jpg"); */
+    background-image: url("images/intro-bg.png");
     background-color:rgb(255, 255, 255, .2)
 }
 

@@ -474,19 +474,10 @@ const initialSetting = ()=>{
     mouth = new Mouth(mouthSpriteSheet, 'closed')
     fire = new Fire(itemsFloorCollection.bonfire)
     
-    // game.putItemInBag(itemsGeneration.genItems(5))
+    game.putItemInBag(itemsGeneration.genItems(3))
 
     game.checkSound()
     eventHandler()
-    ///////////////////////////////////////////////////////////////////////// test
-    // game.sound = false
-    game.checkSound()
-    game.gameOn = true
-    game.setGameTime()
-    game.intro = false
-    game.update()
-    game.putItemInBag(itemsGeneration.genSingleItem('frog'))
-    /////////////////////////////////////////////////////////////////////////
 }
 
 // Update mouse position
