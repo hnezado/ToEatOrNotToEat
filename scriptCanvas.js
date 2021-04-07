@@ -442,14 +442,8 @@ class Game {
     }
 }
 
-// Items Collection
-let itemsInvGrid = [
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-]
-let itemsFloorCollection
+// Inventory and Items Collection
+let itemsInvGrid, itemsFloorCollection
 
 // SpriteSheets declarations
 let bonfireSpriteSheet, mouthSpriteSheet, footprintsSpriteSheet, canteenSpriteSheet, backpackSpriteSheet
@@ -465,6 +459,13 @@ const initialSetting = ()=>{
     canteenSpriteSheet = new SpriteSheet(images.canteenImg, [2, 1])
     backpackSpriteSheet = new SpriteSheet(images.backpackImg, [2, 1])
     
+    // Items Collection
+    itemsInvGrid = [
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,]
+
     // Floor Items Collection
     itemsFloorCollection = {
         bonfire: new FloorItem(bonfireSpriteSheet, [100, 300], 100),
@@ -507,9 +508,7 @@ const eventHandler = ()=>{
     startBtn.onclick = function(){
         startBtn.innerText = 'Start game'
         if (!game.gameOn){
-            survivor = new Survivor()
-            game = new Game()
-            game.emptyInv()
+            initialSetting()
             game.startGame()
         }
     }
