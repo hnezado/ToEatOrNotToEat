@@ -70,7 +70,8 @@ class Bar{
         ctx.drawImage(this.img, 0, 0, this.w*value/this.maxValue, this.h, 
             this.posDim[0], this.posDim[1], this.w*value/this.maxValue, this.h)
         
-        const percentage = `${Math.floor(value/this.maxValue*100*10)/10}%`
+        const decs = 1
+        const percentage = `${Math.floor(value/this.maxValue*100*decs)/decs}%`
         // const percentageTextWidth = ctx.measureText(percentage).width
         ctx.font = '15px AlbertTextBold'
         ctx.fillStyle = this.textColor

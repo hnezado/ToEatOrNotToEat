@@ -10,9 +10,11 @@ const sounds = {
     sipSound: new Audio('sounds/sip.mp3'),
     emptySound: new Audio('sounds/empty.mp3'),
     zipSound: new Audio('sounds/zip.mp3'),
+    hissSound: new Audio('sounds/hiss.mp3'),
     chewSound: new Audio('sounds/chew.mp3'),
     yummySound: new Audio('sounds/yummy.mp3'),
-    yuckSound: new Audio('sounds/yuck.mp3')
+    yuckSound: new Audio('sounds/yuck.mp3'),
+    throwSound: new Audio('sounds/throw.mp3')
 }
 sounds.forestSound.loop = true
 sounds.cracklingSound.loop = true

@@ -21,12 +21,12 @@ createImages()
 // Survivor class
 class Survivor {
     constructor(){
-        this.hydration = 90
+        this.hydration = 100
         this.maxHydration = 100
-        this.hydrationLoss = 0.01
-        this.saturation = 70
+        this.hydrationLoss = 0.035
+        this.saturation = 100
         this.maxSaturation = 100
-        this.saturationLoss = 0.006
+        this.saturationLoss = 0.03
         this.wet = 0
         this.maxWet = 50
         this.bodyHeat = 37
@@ -41,7 +41,6 @@ class Survivor {
         }
         this.canteenCharges = 0
         this.maxCanteenCharges = 15
-        this.printed = false
     }
     
     survivorLoad = ()=>{
@@ -99,7 +98,6 @@ class Survivor {
     }
 
     drink = ()=>{
-        console.log(this.canteenCharges)
         if (!this.drinking){
             this.drinking = true
             itemsFloorCollection.canteen.active = true
@@ -127,10 +125,10 @@ class Survivor {
             this.saturation += game.cursor.calories*0.05
             this.checkStatsLimits()
 
-            setTimeout(()=>{this.eating = false}, 5000)
-            if (game.cursor.type === 'meat' && game.cursor.state === 'raw'){
+            setTimeout(()=>{this.eating = false}, 3500)
+            if (game.cursor.type === 'meat' && game.cursor.state === 'raw' || game.cursor.state === 'burned'){
                 setTimeout(()=>{sounds.yuckSound.play()}, 2000)
-            } else if (game.cursor.calories > 500){
+            } else if (game.cursor.calories > 500 || game.cursor.state === 'cooked'){
                 setTimeout(()=>{sounds.yummySound.play()}, 2000)
             }
             game.cursor = null
@@ -147,25 +145,12 @@ class Survivor {
     }
 
     cook = ()=>{
-        if (game.cursor && !game.showInventory){
-            if (checkHoverPos(mousePos, fire.bonfireAreas['1'])){
-                if (this.printed !== '1'){
-                    console.log('1')
-                    this.printed = '1'
-                }
-            } else if (checkHoverPos(mousePos, fire.bonfireAreas['2'])){
-                if (this.printed !== '2'){
-                    console.log('2')
-                    this.printed = '2'
-                }
-            } else if (checkHoverPos(mousePos, fire.bonfireAreas['3'])){
-                if (this.printed !== '3'){
-                    console.log('3')
-                    this.printed = '3'
-                }
-            }
+        if (fire.hoveringFire){
+            const cookingHeat = 10
+            if (game.cursor) game.cursor.cookItem(cookingHeat)
         }
     }
+
 }
 
 // Game class
@@ -305,8 +290,8 @@ class Game {
             this.displayInvItems()
             this.displayInfoBoxes(mousePos)
         }
-    }
-    
+    }  
+
     displayInvItems = ()=>{
         for (let [index, invCell] of itemsInvGrid.entries()){
             if (invCell instanceof InventoryItem){
@@ -349,7 +334,7 @@ class Game {
     }
 
     checkDays = ()=>{
-        const timeDivisor = 120
+        const timeDivisor = 24
         if (Math.floor(this.gameTime%timeDivisor) === 0){
             this.daysCount = Math.floor(this.gameTime/timeDivisor)
             woodenSign.showNewDay = true
@@ -361,8 +346,13 @@ class Game {
         survivor.openingBag = true
         sounds.zipSound.play()
         setTimeout(()=>{
-            this.showInventory = !this.showInventory
-            itemsFloorCollection.backpack.active = !itemsFloorCollection.backpack.active
+            if (!this.showInventory){
+                this.showInventory = true
+                itemsFloorCollection.backpack.active = true
+            } else {
+                this.showInventory = false
+                itemsFloorCollection.backpack.active = false
+            }
             survivor.openingBag = false
         }, 1000)
     }
@@ -412,6 +402,10 @@ class Game {
     
     checkGameOver = ()=>{
         if (survivor.checkDeath()){
+            clearTimeout(fire.overFireTimeOut)
+            clearTimeout(fire.hurtCooldown)
+            this.cursor = null
+            this.checkCursor()
             this.gameOver = true
             if (this.gameOver && this.showGameOver){
                 sounds.cracklingSound.pause()
@@ -424,7 +418,15 @@ class Game {
                 ctx.font = '60px AlbertTextBold'
                 ctx.fillStyle = 'red'
                 ctx.fillText(`You died of ${survivor.checkDeath()}!`, canvas.width*0.5, canvas.height*0.4)
-                ctx.fillText(`You survived ${this.daysCount} days`, canvas.width*0.5, canvas.height*0.6)
+                ctx.fillStyle = 'red'
+                ctx.font = '50px AlbertTextBold'
+                if (this.gameTime/24 > 1){
+                    ctx.fillText(`You survived ${Math.floor(this.gameTime/24)} days and ${Math.floor(this.gameTime%24)} hours`, canvas.width*0.5, canvas.height*0.6)
+                } else if(this.gameTime/24 === 1) {
+                    ctx.fillText(`You survived ${Math.floor(this.gameTime/24)} day and ${Math.floor(this.gameTime%24)} hours`, canvas.width*0.5, canvas.height*0.6)
+                } else {
+                    ctx.fillText(`You survived ${Math.floor(this.gameTime%24)} hours`, canvas.width*0.5, canvas.height*0.6)
+                }
                 startBtn.innerText = 'New game'
             }
         }
@@ -477,13 +479,13 @@ const initialSetting = ()=>{
     game.checkSound()
     eventHandler()
     ///////////////////////////////////////////////////////////////////////// test
-    game.sound = false
+    // game.sound = false
     game.checkSound()
     game.gameOn = true
     game.setGameTime()
     game.intro = false
     game.update()
-    game.putItemInBag(itemsGeneration.genSingleItem('acorns'))
+    game.putItemInBag(itemsGeneration.genSingleItem('frog'))
     /////////////////////////////////////////////////////////////////////////
 }
 
@@ -525,7 +527,7 @@ const eventHandler = ()=>{
     } 
     soundBtn.onclick = function(){
         game.sound = !game.sound
-        checkSound()
+        game.checkSound()
     }
 
     // Game events (clicks)

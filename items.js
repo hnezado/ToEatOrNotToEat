@@ -48,21 +48,24 @@ class FloorItem {
 
 // Inventory Item class
 class InventoryItem {
-    constructor(){
+    constructor(state){
         this.img
         this.width
         this.height
         this.posDim
-
-        this.calories
-
+        
         this.description
         this.boxWidth = 130
         this.boxHeight = 80
         this.showBox = false
 
+        this.calories
+
+        state ? this.state = state : this.state = 'raw'
+
         this.cookCounter = 0
         this.cookedCount = 0
+        this.stateBuffer = 'raw'
     }
 
     getInitialVariables = ()=>{
@@ -75,8 +78,8 @@ class InventoryItem {
     displayInvItem = (mousePos)=>{
         if (mousePos){
             if (this.state === 'burned'){
-                ctx.drawImage(this.img.sheet, this.img.crops[3].x, this.img.crops[3].y,
-                    this.img.crops[3].w, this.img.crops[3].h,
+                ctx.drawImage(this.img.sheet, this.img.crops[2].x, this.img.crops[2].y,
+                    this.img.crops[2].w, this.img.crops[2].h,
                     mousePos[0]-this.width*0.5,  mousePos[1]-this.height*0.5, this.width, this.height)
             } else if (this.state === 'cooked') {
                 ctx.drawImage(this.img.sheet, this.img.crops[1].x, this.img.crops[1].y,
@@ -89,8 +92,8 @@ class InventoryItem {
             }
         } else {
             if (this.state === 'burned'){
-                ctx.drawImage(this.img.sheet, this.img.crops[3].x, this.img.crops[3].y,
-                    this.img.crops[3].w, this.img.crops[3].h,
+                ctx.drawImage(this.img.sheet, this.img.crops[2].x, this.img.crops[2].y,
+                    this.img.crops[2].w, this.img.crops[2].h,
                     this.posDim[0], this.posDim[1], this.width, this.height)
             } else if (this.state === 'cooked') {
                 ctx.drawImage(this.img.sheet, this.img.crops[1].x, this.img.crops[1].y,
@@ -127,22 +130,28 @@ class InventoryItem {
         itemsInvGrid[index] = itemBuffer
     }
 
-    // Not sure about this one
-    cookFood = (cookingSpeed)=>{
-        switch (this.foodState) {
-            case 'raw':
-                this.cookedCount += cookingSpeed
-                if (this.cookedCount >= 100) this.foodState = 'cooked'
-                break
-            case 'cooked':
-                this.cookedCount += cookingSpeed
-                if (this.cookedCount > 110) this.foodState = 'burned'
-                break
-            case 'burned':
-                return `It's already burned`
-            default:
-                return 'Not cookable'
+    cookItem = (cookingSpeed)=>{
+        this.cookingCounter += cookingSpeed
+        if (this.cookingCounter > this.cookingTime){
+            if (this.cookingTime > 0){
+                this.state = 'cooked'
+            } else {
+                this.state = 'burned'
+            }
         }
+        if (this.cookingCounter > this.cookingTime+200){
+            this.state = 'burned'
+        }
+        if (this.stateBuffer !== this.state){
+            if (this.state === 'cooked'){
+                sounds.hissSound.play()
+                this.calories = this.baseCalories*(Math.floor(Math.random()*3)+1.5)
+            } else if (this.state === 'burned'){
+                sounds.hissSound.play()
+                this.calories = this.baseCalories*(Math.floor(Math.random()*0.1)+0.05)
+            }
+        }
+        this.stateBuffer = this.state
     }
 }
 
@@ -153,8 +162,10 @@ class Acorns extends InventoryItem{
         this.type = 'fruit'
         this.img = new SpriteSheet(images.acornsImg, [3, 1])
         this.description = 'Couple of acorns'
-        this.calories = 120
+        this.baseCalories = 60
+        this.calories = 60
         this.cookingTime = 2000
+        this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 75
         this.getInitialVariables()
@@ -166,10 +177,12 @@ class Beehive extends InventoryItem{
         super()
         this.name = 'beehive'
         this.type = 'misc'
-        this.img = new SpriteSheet(images.beehiveImg, [2, 1])
+        this.img = new SpriteSheet(images.beehiveImg, [3, 1])
         this.description = 'Abandoned beehive'
+        this.baseCalories = 1200
         this.calories = 1200
         this.cookingTime = 0
+        this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 5
         this.getInitialVariables()
@@ -183,8 +196,10 @@ class Bird extends InventoryItem{
         this.type = 'meat'
         this.img = new SpriteSheet(images.birdImg, [3, 1])
         this.description = 'Plucked bird'
-        this.calories = 200
+        this.baseCalories = 100
+        this.calories = 100
         this.cookingTime = 6000
+        this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 45
         this.getInitialVariables()
@@ -198,8 +213,10 @@ class Chestnut extends InventoryItem{
         this.type = 'fruit'
         this.img = new SpriteSheet(images.chestnutImg, [3, 1])
         this.description = 'Mature chestnut'
-        this.calories = 150
+        this.baseCalories = 75
+        this.calories = 75
         this.cookingTime = 2000
+        this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 70
         this.getInitialVariables()
@@ -211,10 +228,12 @@ class Cranberries extends InventoryItem{
         super()
         this.name = 'cranberries'
         this.type = 'fruit'
-        this.img = new SpriteSheet(images.cranberriesImg, [2, 1])
+        this.img = new SpriteSheet(images.cranberriesImg, [3, 1])
         this.description = 'Some cranberries'
-        this.calories = 100
+        this.baseCalories = 50
+        this.calories = 50
         this.cookingTime = 0
+        this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 80
         this.getInitialVariables()
@@ -228,8 +247,10 @@ class Egg extends InventoryItem{
         this.type = 'meat'
         this.img = new SpriteSheet(images.eggImg, [3, 1])
         this.description = 'Egg from an unknow bird'
-        this.calories = 180
+        this.baseCalories = 90
+        this.calories = 90
         this.cookingTime = 1500
+        this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 55
         this.getInitialVariables()
@@ -243,8 +264,10 @@ class Fish extends InventoryItem{
         this.type = 'meat'
         this.img = new SpriteSheet(images.fishImg, [3, 1])
         this.description = 'Fish recently catched'
-        this.calories = 220
+        this.baseCalories = 110
+        this.calories = 110
         this.cookingTime = 5000
+        this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 60
         this.getInitialVariables()
@@ -256,10 +279,12 @@ class Flowers extends InventoryItem{
         super()
         this.name = 'flowers'
         this.type = 'plant'
-        this.img = new SpriteSheet(images.flowersImg, [2, 1])
+        this.img = new SpriteSheet(images.flowersImg, [3, 1])
         this.description = 'A bunch of flowers'
-        this.calories = 40
+        this.baseCalories = 20
+        this.calories = 20
         this.cookingTime = 0
+        this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 90
         this.getInitialVariables()
@@ -273,8 +298,10 @@ class Frog extends InventoryItem{
         this.type = 'meat'
         this.img = new SpriteSheet(images.frogImg, [3, 1])
         this.description = 'Pond frog'
-        this.calories = 150
+        this.baseCalories = 75
+        this.calories = 75
         this.cookingTime = 3500
+        this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 40
         this.getInitialVariables()
@@ -288,8 +315,10 @@ class Maggot extends InventoryItem{
         this.type = 'meat'
         this.img = new SpriteSheet(images.maggotImg, [3, 1])
         this.description = 'Moving maggot'
-        this.calories = 180
+        this.baseCalories = 90
+        this.calories = 90
         this.cookingTime = 1500
+        this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 85
         this.getInitialVariables()
@@ -303,8 +332,10 @@ class Meat extends InventoryItem{
         this.type = 'meat'
         this.img = new SpriteSheet(images.meatImg, [3, 1])
         this.description = 'A piece of meat'
-        this.calories = 500
+        this.baseCalories = 250
+        this.calories = 250
         this.cookingTime = 8000
+        this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 15
         this.getInitialVariables()
@@ -318,8 +349,10 @@ class Mushroom extends InventoryItem{
         this.type = 'plant'
         this.img = new SpriteSheet(images.mushroomImg, [3, 1])
         this.description = 'Healthy mushroom'
-        this.calories = 150
+        this.baseCalories = 75
+        this.calories = 75
         this.cookingTime = 1200
+        this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 20
         this.getInitialVariables()
@@ -333,8 +366,10 @@ class Roots extends InventoryItem{
         this.type = 'plant'
         this.img = new SpriteSheet(images.rootsImg, [3, 1])
         this.description = 'Edible roots'
-        this.calories = 120
+        this.baseCalories = 60
+        this.calories = 60
         this.cookingTime = 4000
+        this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 80
         this.getInitialVariables()
@@ -348,8 +383,10 @@ class Snails extends InventoryItem{
         this.type = 'meat'
         this.img = new SpriteSheet(images.snailsImg, [3, 1])
         this.description = 'Some small snails'
-        this.calories = 160
+        this.baseCalories = 80
+        this.calories = 80
         this.cookingTime = 3000
+        this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 50
         this.getInitialVariables()
@@ -361,10 +398,12 @@ class Strawberries extends InventoryItem{
         super()
         this.name = 'strawberries'
         this.type = 'fruit'
-        this.img = new SpriteSheet(images.strawberriesImg, [2, 1])
+        this.img = new SpriteSheet(images.strawberriesImg, [3, 1])
         this.description = 'Couple of strawberries'
-        this.calories = 300
+        this.baseCalories = 150
+        this.calories = 150
         this.cookingTime = 0
+        this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 25
         this.getInitialVariables()
@@ -378,8 +417,10 @@ class WildSpinach extends InventoryItem{
         this.type = 'plant'
         this.img = new SpriteSheet(images.wildSpinachImg, [3, 1])
         this.description = 'Bunch of wild spinach leaves'
-        this.calories = 80
+        this.baseCalories = 40
+        this.calories = 40
         this.cookingTime = 1500
+        this.cookingCounter = 0
         this.state = 'raw'
         this.rarity = 75
         this.getInitialVariables()
