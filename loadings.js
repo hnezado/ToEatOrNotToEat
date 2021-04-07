@@ -8,6 +8,7 @@ const sounds = {
     bellSound: new Audio('sounds/bell.mp3'),
     ouchSound: new Audio('sounds/ouch.mp3'),
     sipSound: new Audio('sounds/sip.mp3'),
+    emptySound: new Audio('sounds/empty.mp3'),
     zipSound: new Audio('sounds/zip.mp3'),
     chewSound: new Audio('sounds/chew.mp3'),
     yummySound: new Audio('sounds/yummy.mp3'),
@@ -31,7 +32,7 @@ const imagesUrls = {
     barBlueImg: 'images/bar-blue.png',
     barWhiteImg: 'images/bar-white.png',
     barRedImg: 'images/bar-red.png',
-    
+
     acornsImg: 'images/inv-items/acorns.png',
     beehiveImg: 'images/inv-items/beehive.png',
     birdImg: 'images/inv-items/bird.png',

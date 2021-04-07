@@ -39,7 +39,8 @@ class Survivor {
             hydrationBuffer: 0,
             saturationBuffer: 0
         }
-
+        this.canteenCharges = 0
+        this.maxCanteenCharges = 15
         this.printed = false
     }
     
@@ -79,6 +80,8 @@ class Survivor {
         if (this.saturation < 0) this.saturation = 0
         if (this.hydration > this.maxHydration) this.hydration = this.maxHydration
         if (this.saturation > this.maxSaturation) this.saturation = this.maxSaturation
+        if (this.canteenCharges < 0) this.canteenCharges = 0
+        if (this.canteenCharges > this.maxCanteenCharges) this.canteenCharges = this.maxCanteenCharges
     }
 
     checkDeath = ()=>{
@@ -96,13 +99,19 @@ class Survivor {
     }
 
     drink = ()=>{
+        console.log(this.canteenCharges)
         if (!this.drinking){
             this.drinking = true
-            sounds.sipSound.play()
             itemsFloorCollection.canteen.active = true
-
-            this.hydration += 15
-            this.checkStatsLimits()
+            
+            if (this.canteenCharges > 0){
+                sounds.sipSound.play()
+                this.canteenCharges--
+                this.hydration += Math.floor(Math.random()*20)+10
+                this.checkStatsLimits()
+            } else {
+                sounds.emptySound.play()
+            }
             
             setTimeout(()=>{
                 itemsFloorCollection.canteen.active = false
@@ -131,8 +140,9 @@ class Survivor {
     search = ()=>{
         game.intro = true
         game.fadeOut()
+        this.canteenCharges += Math.floor(Math.random()*3)+this.maxCanteenCharges-3
         const itemsGen = itemsGeneration.genItems()
-        this.statsPenalty(itemsGen.length*2)
+        this.statsPenalty(itemsGen.length*5)
         game.putItemInBag(itemsGen)
     }
 
@@ -411,6 +421,8 @@ class Game {
         if (survivor.checkDeath()){
             this.gameOver = true
             if (this.gameOver && this.showGameOver){
+                sounds.cracklingSound.pause()
+                sounds.forestSound.pause()
                 sounds.bellSound.play()
                 this.showGameOver = false
                 this.gameOn = false
