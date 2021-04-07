@@ -263,7 +263,7 @@ class Fish extends InventoryItem{
         this.name = 'fish'
         this.type = 'meat'
         this.img = new SpriteSheet(images.fishImg, [3, 1])
-        this.description = 'Fish recently catched'
+        this.description = 'Fish recently caught'
         this.baseCalories = 110
         this.calories = 110
         this.cookingTime = 5000

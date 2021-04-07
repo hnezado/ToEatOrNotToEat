@@ -500,6 +500,12 @@ const eventHandler = ()=>{
         if (!game.gameOn){
             survivor = new Survivor()
             game = new Game()
+            itemsInvGrid = [
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+            ]
             game.startGame()
         }
     }
