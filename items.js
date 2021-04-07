@@ -57,7 +57,7 @@ class InventoryItem {
         this.calories
 
         this.description
-        this.boxWidth = 30
+        this.boxWidth = 130
         this.boxHeight = 80
         this.showBox = false
 
@@ -69,7 +69,7 @@ class InventoryItem {
         this.img instanceof SpriteSheet ? this.width = this.img.cropWidth : this.width = this.img.naturalWidth
         this.img instanceof SpriteSheet ? this.height = this.img.cropHeight : this.height = this.img.naturalHeight
         this.posDim = [0, 0, this.width, this.height]
-        this.boxWidth = ctx.measureText(' ').width*this.longestText
+        // this.boxWidth = ctx.measureText(' ').width*this.longestText
     }
 
     displayInvItem = (mousePos)=>{
@@ -105,16 +105,15 @@ class InventoryItem {
     }
 
     displayInfoBox = (mousePos)=>{
+
         ctx.fillStyle = 'rgb(0, 0, 0, .7)'
         ctx.fillRect(mousePos[0]+5, mousePos[1]+5, this.boxWidth*2, this.boxHeight)
         ctx.font = '20px AlbertTextBold'
         ctx.fillStyle = 'rgb(255, 255, 255, 1)'
         ctx.fillText(this.description, mousePos[0]+this.boxWidth, mousePos[1]+32)
-        if (this.calories){
-            ctx.font = '15px AlbertTextBold'
-            ctx.fillStyle = 'grey'
-            ctx.fillText(`(${this.foodState.charAt(0).toUpperCase() + this.foodState.slice(1)}) ${this.calories} calories`, mousePos[0]+this.boxWidth, mousePos[1]+64)
-        }
+        ctx.font = '15px AlbertTextBold'
+        ctx.fillStyle = 'grey'
+        ctx.fillText(`(${this.state.charAt(0).toUpperCase() + this.state.slice(1)}) ${this.calories} calories`, mousePos[0]+this.boxWidth, mousePos[1]+64)
     }
 
     pickUpItem = (index)=>{

@@ -282,13 +282,6 @@ class Game {
         window.requestAnimationFrame(()=>this.update())
     }
 
-        
-        // const list = ['acorns', 'acorns', 'flowers', 'flowers', 'flowers']
-        // const list2 = []
-        // const index = Math.floor(Math.random()*list.length)
-        // list.splice(index, 1).push(list2)
-        //     return list2
-
     displayBg = ()=>{
         ctx.drawImage(images.bgImg, 0, 0, images.bgImg.width, images.bgImg.height)
     }
@@ -310,7 +303,7 @@ class Game {
             ctx.drawImage(images.inventoryImg, this.invPos[0], this.invPos[1], 
                 images.inventoryImg.naturalWidth, images.inventoryImg.naturalHeight)
             this.displayInvItems()
-            // this.displayInfoBoxes()
+            this.displayInfoBoxes(mousePos)
         }
     }
     
@@ -324,15 +317,15 @@ class Game {
         }
     }
 
-    // displayInfoBoxes = (mousePos)=>{
-    //     for (let invCell of itemsInvGrid){
-    //         if (invCell instanceof InventoryItem){
-    //             if (checkHoverPos(mousePos, invCell.posDim)){
-    //                 invCell.displayInfoBox()
-    //             }
-    //         }
-    //     }
-    // }
+    displayInfoBoxes = (mousePos)=>{
+        for (let invCell of itemsInvGrid){
+            if (invCell instanceof InventoryItem){
+                if (checkHoverPos(mousePos, invCell.posDim)){
+                    invCell.displayInfoBox(mousePos)
+                }
+            }
+        }
+    }
 
     displayBars = ()=>{
         hydrationBar.displayBar(survivor.hydration)
@@ -479,19 +472,18 @@ const initialSetting = ()=>{
     mouth = new Mouth(mouthSpriteSheet, 'closed')
     fire = new Fire(itemsFloorCollection.bonfire)
     
-    game.putItemInBag(itemsGeneration.genSingleItem('acorns'))
-    // game.putItemInBag(itemsGeneration.genSingleItem('beehive'))
-    // game.putItemInBag(itemsGeneration.genSingleItem('bird'))
-    // game.putItemInBag(itemsGeneration.genSingleItem('meat'))
-    // game.putItemInBag(itemsGeneration.genSingleItem('wild-spinach'))
+    // game.putItemInBag(itemsGeneration.genItems(5))
 
     game.checkSound()
     eventHandler()
     ///////////////////////////////////////////////////////////////////////// test
+    game.sound = false
+    game.checkSound()
     game.gameOn = true
     game.setGameTime()
     game.intro = false
     game.update()
+    game.putItemInBag(itemsGeneration.genSingleItem('acorns'))
     /////////////////////////////////////////////////////////////////////////
 }
 
@@ -595,10 +587,3 @@ const eventHandler = ()=>{
         }
     }
 }
-
-// debugging
-// game.gameOn = true
-// game.intro = false
-// game.setGameTime()
-// game.openCloseInventory()
-// game.update()
