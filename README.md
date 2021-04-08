@@ -11,7 +11,7 @@ The goal of the game is about surviving into the wild. To keep you alive you nee
 
 To play you only need to move and click the cursor. ![mouse-image](https://i.ibb.co/NLsFS8T/1994612.png)
 
-![ScreenShot](https://i.ibb.co/tKGYxZP/2021-04-08-09-32-08-To-Eat-or-not-To-Eat-Brave.png)
+![ScreenShot](https://i.ibb.co/tKGYxZP/2021-04-08-09-32-08-To-Eat-or-not-To-Eat-Brave.png)  
 [Link to the game](https://thornnk.github.io/ToEatOrNotToEat/)
 
 # Used technologies:
