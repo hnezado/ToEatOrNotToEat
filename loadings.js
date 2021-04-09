@@ -22,6 +22,7 @@ sounds.cracklingSound.loop = true
 // Images loadings
 const imagesUrls = {
     bonfireImg: 'images/floor-items/bonefire.png',
+    smokeImg: 'images/floor-items/smoke.png',
     mouthImg: 'images/mouth.png',
     footprintsImg: 'images/floor-items/footprints.png',
     canteenImg: 'images/floor-items/canteen.png',

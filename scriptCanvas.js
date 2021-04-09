@@ -205,6 +205,8 @@ class Game {
             const opacity = this.opacityInCounter*0.01
             this.displayBg()
             this.displayFloorItems()
+            genSmokes()
+            this.displaySmoke()
             this.displayFg()
             this.displayBars()
             this.checkDays()
@@ -255,6 +257,8 @@ class Game {
             if (!this.gameOver){
                 this.displayBg()
                 this.displayFloorItems()
+                genSmokes()
+                this.displaySmoke()
                 this.displayFg()
                 this.displayInventory()
                 this.displayBars()
@@ -277,6 +281,14 @@ class Game {
         Object.keys(itemsFloorCollection).forEach((item)=>{
             itemsFloorCollection[item].displayFloorItem()
         })
+    }
+
+    displaySmoke = ()=>{
+        if (smokesArray.length > 0){
+            for (let smk of smokesArray){
+                smk.displaySmoke()
+            }
+        }
     }
     
     displayFg = ()=>{
@@ -448,14 +460,16 @@ class Game {
 let itemsInvGrid, itemsFloorCollection
 
 // SpriteSheets declarations
-let bonfireSpriteSheet, mouthSpriteSheet, footprintsSpriteSheet, canteenSpriteSheet, backpackSpriteSheet
+let bonfireSpriteSheet, smokeSpriteSheet, mouthSpriteSheet, footprintsSpriteSheet, canteenSpriteSheet, backpackSpriteSheet
 
 // Instances declarations
 let survivor, game, woodenSign, hydrationBar, saturationBar, mouth
+const smokesArray = []
 
 const initialSetting = ()=>{
     // SpriteSheet object loadings here
     bonfireSpriteSheet = new SpriteSheet(images.bonfireImg, [1, 8])
+    smokeSpriteSheet = new SpriteSheet(images.smokeImg, [1, 5])
     mouthSpriteSheet = new SpriteSheet(images.mouthImg, [2, 1])
     footprintsSpriteSheet = new SpriteSheet(images.footprintsImg, [2, 1])
     canteenSpriteSheet = new SpriteSheet(images.canteenImg, [2, 1])
