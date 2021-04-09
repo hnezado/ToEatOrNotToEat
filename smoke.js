@@ -29,7 +29,7 @@ class Smoke{
 
             this.changeOpacitySmoke()
 
-            if (this.opacity === 0.8 && !this.opacityTimeout){
+            if (this.opacity === 0.45 && !this.opacityTimeout){
                 this.opacityTimeout = setTimeout(()=>{
                     this.opacityMode = 'down'
                 }, 500)
@@ -48,7 +48,7 @@ class Smoke{
             if (this.opacity < 0) this.opacity = 0
             if (this.opacity === 0) this.done = true
         }
-        if (this.opacity > 0.8) this.opacity = 0.8
+        if (this.opacity > 0.45) this.opacity = 0.45
     }
 }
 let randomSmokeGenTimeout, smokeGenTimeout
