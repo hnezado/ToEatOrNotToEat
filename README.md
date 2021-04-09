@@ -36,4 +36,4 @@ This project is not subject to any license.
 
 # Find me
 ---
-*Hector Martinez* | [Github](https://github.com/Thornnk/) | [Linkedin](https://www.linkedin.com/in/hector-md/)
+*Hector Martinez* | [![Github](https://i.ibb.co/txV3t3Z/github-green.png)](https://github.com/Thornnk/) |  [![Linkedin](https://i.ibb.co/ThC6qkQ/linkedin-green.png)](https://www.linkedin.com/in/hector-md/)
