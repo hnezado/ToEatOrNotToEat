@@ -29,7 +29,9 @@ To play you only need to move and click the cursor. <picture>
 - DOM
 - Bootstrap
 - Git
-- GitHub & <del>GitHub Pages</del>
+- GitHub
+- <del>GitHub Pages</del>
+- AWS (deployment)
 
 # Additional tools used
 
